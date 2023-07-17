@@ -1,8 +1,8 @@
-#include "headers/chess.hpp"
+#include "headers/game.hpp"
 
 int main(int argc, char **argv)
 {
-    Chess chess;
+    Game chess;
     chess.Init();
     return 0;
 }

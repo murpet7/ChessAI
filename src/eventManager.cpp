@@ -1,6 +1,6 @@
 #include "headers/eventManager.hpp"
 
-void EventManager::Update(bool &running, Board &board)
+void EventManager::Update(bool &running, MoveManager &moveManager, Board &board)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -11,10 +11,10 @@ void EventManager::Update(bool &running, Board &board)
             running = false;
             break;
         case SDL_MOUSEBUTTONDOWN:
-            OnMouseDown(board);
+            OnMouseDown(moveManager, board);
             break;
         case SDL_MOUSEBUTTONUP:
-            OnMouseUp(board);
+            OnMouseUp(moveManager, board);
             break;
         }
         if (event.type == SDL_KEYDOWN)
@@ -29,16 +29,16 @@ void EventManager::Update(bool &running, Board &board)
     }
 }
 
-void EventManager::OnMouseDown(Board &board)
+void EventManager::OnMouseDown(MoveManager &moveManager, Board &board)
 {
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
-    board.PickupPiece(mouseX, mouseY);
+    moveManager.PickupPiece(mouseX, mouseY, board);
 }
 
-void EventManager::OnMouseUp(Board &board)
+void EventManager::OnMouseUp(MoveManager &moveManager, Board &board)
 {
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
-    board.DropPiece(mouseX, mouseY);
+    moveManager.DropPiece(mouseX, mouseY, board);
 }
