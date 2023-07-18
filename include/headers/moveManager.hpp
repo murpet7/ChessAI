@@ -4,6 +4,7 @@
 #include <SDL2/SDL_image.h>
 #include "headers/board.hpp"
 #include "headers/renderer.hpp"
+#include "headers/moveGenerator.hpp"
 
 class MoveManager
 {
@@ -12,6 +13,8 @@ public:
     void PickupPiece(int x, int y, Board &board);
     void DropPiece(int x, int y, Board &board);
     int GetHeldPiece();
+    int GetHeldPieceIndex();
+    int GetPlayerToMove();
 
 private:
     int playerToMove = WHITE;

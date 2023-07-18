@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "headers/piece.hpp"
@@ -16,7 +17,10 @@
 class Board
 {
 public:
-    Board();
     int pieces[64] = {NONE};
+    std::map<int, SDL_Texture *> pieceTextures;
+    std::map<int, std::list<int>> pieceSquaresOfType;
+    Board();
     void PiecesFromFEN(std::string FEN);
+    int PieceTypeFromChar(char c);
 };

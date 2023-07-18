@@ -47,10 +47,11 @@ void Renderer::LoadPieceTextures()
     pieceTextures[BLACK | KING] = bKing;
 }
 
-void Renderer::Update(Board board, int heldPiece)
+void Renderer::Update(Board board, int heldPiece, int heldPieceSquare, int playerToMove)
 {
     RenderBackground();
     RenderBoard();
+    RenderLegalMoves(board, heldPiece, heldPieceSquare, playerToMove);
     RenderPieces(board);
     RenderDraggedPiece(heldPiece);
     SDL_RenderPresent(SDLRenderer);
@@ -104,6 +105,19 @@ void Renderer::RenderDraggedPiece(int heldPiece)
     SDL_Rect rect = {mouseX - TILE_SIZE / 2, mouseY - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE};
     SDL_Texture *texture = pieceTextures[heldPiece];
     SDL_RenderCopy(SDLRenderer, texture, NULL, &rect);
+}
+
+void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int playerToMove)
+{
+    if (heldPiece == NONE)
+        return;
+    std::list<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, playerToMove);
+    for (Move move : legalMoves)
+    {
+        SDL_Rect rect = {FileIndex(move.to) * TILE_SIZE + BOARD_X, RankIndex(move.to) * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};
+        SDL_SetRenderDrawColor(SDLRenderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(SDLRenderer, &rect);
+    }
 }
 
 void Renderer::RenderBackground()
