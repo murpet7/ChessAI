@@ -111,7 +111,7 @@ void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare,
 {
     if (heldPiece == NONE)
         return;
-    std::list<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, playerToMove);
+    std::list<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, heldPiece, playerToMove);
     for (Move move : legalMoves)
     {
         SDL_Rect rect = {FileIndex(move.to) * TILE_SIZE + BOARD_X, RankIndex(move.to) * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};

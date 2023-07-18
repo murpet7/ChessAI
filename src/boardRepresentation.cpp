@@ -10,9 +10,9 @@ int FileIndex(int squareIndex)
     return squareIndex & 7;
 }
 
-int SquareIndex(int rankIndex, int fileIndex)
+int SquareIndex(int fileIndex, int rankIndex)
 {
-    return (rankIndex << 3) | fileIndex;
+    return rankIndex * 8 + fileIndex;
 }
 
 std::string SquareName(int squareIndex)

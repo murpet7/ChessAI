@@ -16,7 +16,7 @@ void MoveManager::PickupPiece(int x, int y, Board &board)
     board.pieces[heldPieceIndex] = NONE;
     std::list<int> &indices = board.pieceSquaresOfType[heldPiece];
     indices.remove(heldPieceIndex);
-    if (GetPieceColor(heldPiece) != playerToMove || heldPiece == NONE)
+    if (PieceIsColor(heldPiece, playerToMove) || heldPiece == NONE)
         ReturnHeldPiece(board);
 }
 
@@ -25,7 +25,7 @@ void MoveManager::DropPiece(int x, int y, Board &board)
     if (heldPiece == NONE)
         return;
     int newSquare = GetTileFromMouse(x, y);
-    if (newSquare != -1 && IsLegalMove(Move(heldPieceIndex, newSquare), playerToMove, board.pieces))
+    if (newSquare != -1 && IsLegalMove(Move(heldPieceIndex, newSquare), playerToMove, board.pieces, heldPiece))
     {
         MoveHeldPiece(newSquare, board);
         FinishTurn();
@@ -67,22 +67,6 @@ bool MoveManager::IsOutOfBounds(int x, int y)
         return true;
     }
     return false;
-}
-
-bool MoveManager::IsOpposingColor(int piece1, int piece2)
-{
-    if (GetPieceColor(piece1) != GetPieceColor(piece2))
-        return true;
-    return false;
-}
-
-int MoveManager::GetPieceColor(int piece)
-{
-    if (piece == NONE)
-        return NONE;
-    if (piece & WHITE)
-        return WHITE;
-    return BLACK;
 }
 
 int MoveManager::GetHeldPiece()

@@ -7,28 +7,28 @@ Board::Board()
 
 void Board::PiecesFromFEN(std::string FEN)
 {
-    int rank = 0;
     int file = 0;
+    int rank = 0;
     for (int i = 0; i < FEN.length(); i++)
     {
         if (FEN[i] == '/')
         {
-            rank = 0;
-            file++;
+            file = 0;
+            rank++;
             continue;
         }
         if (FEN[i] >= '1' && FEN[i] <= '8')
         {
-            rank += FEN[i] - '0';
+            file += FEN[i] - '0';
         }
         else
         {
-            int squareIndex = SquareIndex(rank, file);
+            int squareIndex = SquareIndex(file, rank);
             int pieceType = PieceTypeFromChar(FEN[i]);
             std::list<int> &indices = pieceSquaresOfType[pieceType];
             indices.push_back(squareIndex);
             pieces[squareIndex] = pieceType;
-            rank++;
+            file++;
         }
     }
 }

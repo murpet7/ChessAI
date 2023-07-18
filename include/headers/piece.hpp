@@ -10,3 +10,7 @@
 
 #define WHITE 8
 #define BLACK 16
+
+bool IsOpposingColor(int piece1, int piece2);
+int GetPieceColor(int piece);
+bool PieceIsColor(int piece, int color);

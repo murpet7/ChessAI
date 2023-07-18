@@ -17,8 +17,8 @@
 #define NORTH_WEST -9
 
 std::list<Move> GenerateAllMoves(Board board, int playerToMove);
-std::list<Move> GenerateMovesForPiece(int pieces[], int square, int playerToMove);
-bool IsLegalMove(Move move, int playerToMove, int pieces[]);
+std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove);
+bool IsLegalMove(Move move, int playerToMove, int pieces[], int heldPiece);
 
 void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
 void GenerateKnightMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
@@ -27,7 +27,8 @@ void GenerateRookMoves(int pieces[], int square, int playerToMove, std::list<Mov
 void GenerateQueenMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
 void GenerateSlidingMoves(int pieces[], int square, int playerToMove, std::list<int> directions, std::list<Move> &pseudoLegalMoves);
 void GenerateKingMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
-bool IsOutOfBounds(int oldSquare, int newSquare);
+
+bool IsOutOfBounds(int oldSquare, int deltaRank, int deltaFile);
 bool IsCapturableSquare(int pieces[], int square, int playerToMove);
 bool IsEmptySquare(int pieces[], int square);
 bool IsEmptySquareOrCapturable(int pieces[], int square, int playerToMove);

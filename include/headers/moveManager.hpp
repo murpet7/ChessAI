@@ -5,6 +5,7 @@
 #include "headers/board.hpp"
 #include "headers/renderer.hpp"
 #include "headers/moveGenerator.hpp"
+#include "headers/piece.hpp"
 
 class MoveManager
 {
@@ -21,8 +22,6 @@ private:
     int heldPiece = NONE;
     int heldPieceIndex;
     bool IsOutOfBounds(int x, int y);
-    bool IsOpposingColor(int piece1, int piece2);
-    int GetPieceColor(int piece);
     void ReturnHeldPiece(Board &board);
     void MoveHeldPiece(int newSquare, Board &board);
     void FinishTurn();

@@ -29,11 +29,10 @@ std::list<Move> GenerateAllMoves(Board board, int playerToMove)
     return pseudoLegalMoves;
 }
 
-std::list<Move> GenerateMovesForPiece(int pieces[], int square, int playerToMove)
+std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove)
 {
     std::list<Move> pseudoLegalMoves;
-    int piece = pieces[square];
-    switch (piece)
+    switch (heldPiece - playerToMove)
     {
     case PAWN:
         GeneratePawnMoves(pieces, square, playerToMove, pseudoLegalMoves);
@@ -59,9 +58,9 @@ std::list<Move> GenerateMovesForPiece(int pieces[], int square, int playerToMove
     return pseudoLegalMoves;
 }
 
-bool IsLegalMove(Move move, int playerToMove, int pieces[])
+bool IsLegalMove(Move move, int playerToMove, int pieces[], int heldPiece)
 {
-    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, move.from, playerToMove);
+    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, move.from, heldPiece, playerToMove);
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
         if (pseudoLegalMove.to == move.to)
@@ -103,10 +102,13 @@ void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Mov
 void GenerateKnightMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves)
 {
     int directions[8] = {-17, -15, -10, -6, 6, 10, 15, 17};
-    for (int direction : directions)
+    int deltaFiles[8] = {-1, 1, -2, 2, -2, 2, -1, 1};
+    int deltaRanks[8] = {-2, -2, -1, -1, 1, 1, 2, 2};
+
+    for (int i = 0; i < 8; i++)
     {
-        int newSquare = square + direction;
-        if (IsOutOfBounds(square, newSquare))
+        int newSquare = square + directions[i];
+        if (IsOutOfBounds(square, deltaRanks[i], deltaFiles[i]))
             continue;
         if (IsEmptySquareOrCapturable(pieces, newSquare, playerToMove))
         {
@@ -135,11 +137,13 @@ void GenerateQueenMoves(int pieces[], int square, int playerToMove, std::list<Mo
 
 void GenerateKingMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves)
 {
-    std::list<int> directions = {-9, -8, -7, -1, 1, 7, 8, 9};
-    for (int direction : directions)
+    int directions[8] = {-9, -8, -7, -1, 1, 7, 8, 9};
+    int deltaRanks[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int deltaFiles[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    for (int i = 0; i < 8; i++)
     {
-        int newSquare = square + direction;
-        if (IsOutOfBounds(square, newSquare))
+        int newSquare = square + directions[i];
+        if (IsOutOfBounds(square, deltaRanks[i], deltaFiles[i]))
             continue;
         if (IsEmptySquareOrCapturable(pieces, newSquare, playerToMove))
         {
@@ -168,21 +172,18 @@ void GenerateSlidingMoves(int pieces[], int square, int playerToMove, std::list<
     }
 }
 
-bool IsOutOfBounds(int oldSquare, int newSquare)
+bool IsOutOfBounds(int oldSquare, int deltaRank, int deltaFile)
 {
-    int delta = newSquare - oldSquare;
     int oldRank = RankIndex(oldSquare);
     int oldFile = FileIndex(oldSquare);
-    int deltaRank = delta / 8;
-    int deltaFile = delta % 8;
-    if (oldRank - deltaRank < 0 || oldRank - deltaRank > 7 || oldFile - deltaFile < 0 || oldFile - deltaFile > 7)
+    if (oldRank + deltaRank < 0 || oldRank + deltaRank > 7 || oldFile + deltaFile < 0 || oldFile + deltaFile > 7)
         return true;
     return false;
 }
 
 bool IsCapturableSquare(int pieces[], int square, int playerToMove)
 {
-    return pieces[square] != NONE && (pieces[square] & WHITE) != playerToMove;
+    return pieces[square] != NONE && PieceIsColor(pieces[square], playerToMove);
 }
 
 bool IsEmptySquare(int pieces[], int square)
@@ -192,7 +193,7 @@ bool IsEmptySquare(int pieces[], int square)
 
 bool IsEmptySquareOrCapturable(int pieces[], int square, int playerToMove)
 {
-    return pieces[square] == NONE || (pieces[square] & WHITE) != playerToMove;
+    return pieces[square] == NONE || PieceIsColor(pieces[square], playerToMove);
 }
 
 bool NumSquaresToEdge(int square, int direction)
