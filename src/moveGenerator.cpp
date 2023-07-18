@@ -156,7 +156,7 @@ void GenerateSlidingMoves(int pieces[], int square, int playerToMove, std::list<
 {
     for (int direction : directions)
     {
-        for (int i = 1; i < NumSquaresToEdge(square, direction); i++)
+        for (int i = 1; i <= NumSquaresToEdge(square, direction); i++)
         {
             int newSquare = square + i * direction;
             if (!IsEmptySquare(pieces, newSquare))
@@ -196,7 +196,7 @@ bool IsEmptySquareOrCapturable(int pieces[], int square, int playerToMove)
     return pieces[square] == NONE || PieceIsColor(pieces[square], playerToMove);
 }
 
-bool NumSquaresToEdge(int square, int direction)
+int NumSquaresToEdge(int square, int direction)
 {
     int rank = RankIndex(square);
     int file = FileIndex(square);

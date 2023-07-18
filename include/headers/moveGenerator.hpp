@@ -32,4 +32,4 @@ bool IsOutOfBounds(int oldSquare, int deltaRank, int deltaFile);
 bool IsCapturableSquare(int pieces[], int square, int playerToMove);
 bool IsEmptySquare(int pieces[], int square);
 bool IsEmptySquareOrCapturable(int pieces[], int square, int playerToMove);
-bool NumSquaresToEdge(int square, int direction);
+int NumSquaresToEdge(int square, int direction);
