@@ -5,6 +5,7 @@
 #include <list>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "headers/move.hpp"
 #include "headers/piece.hpp"
 #include "headers/boardRepresentation.hpp"
 
@@ -24,7 +25,14 @@ public:
     std::map<int, std::list<int>> pieceSquaresOfType;
     Board();
     void PiecesFromFEN(std::string FEN);
-    int PieceTypeFromChar(char c);
+
+    void PickupPiece(int x, int y);
+    void DropPiece(int x, int y);
+    int GetHeldPiece();
+    int GetHeldPieceIndex();
+    int GetPlayerToMove();
+    int GetPawnTwoSquareFile();
+    void MovePiece(Move move);
 
     const unsigned short whiteCastleKingsideMask = 0b0001;
     const unsigned short whiteCastleQueensideMask = 0b0010;
@@ -35,4 +43,18 @@ public:
     bool CanCastleQueenside(int playerToMove);
     void RemoveKingsideCastle(int playerToMove);
     void RemoveQueensideCastle(int playerToMove);
+
+private:
+    int playerToMove = WHITE;
+    int heldPiece = NONE;
+    int heldPieceIndex;
+    int pawnTwoSquareFile = -2;
+    bool IsOutOfBounds(int x, int y);
+    void ReturnHeldPiece();
+    void Castle(int oldRookPos, int newRookPos);
+    void CheckCastleRights(int pieceType, int square);
+    void FinishTurn();
+    void Promote(int promotionType, int square);
+    int PieceTypeFromChar(char c);
+    int GetTileFromMouse(int mouseX, int mouseY);
 };

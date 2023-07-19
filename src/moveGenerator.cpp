@@ -1,6 +1,6 @@
 #include "headers/moveGenerator.hpp"
 
-std::list<Move> GenerateAllMoves(Board board, int playerToMove, int pawnTwoSquareFile)
+std::list<Move> GenerateAllPseudoLegalMoves(Board board, int playerToMove, int pawnTwoSquareFile)
 {
     std::list<Move> pseudoLegalMoves;
     std::list<int> squares = board.pieceSquaresOfType[PAWN | playerToMove];
@@ -29,6 +29,13 @@ std::list<Move> GenerateAllMoves(Board board, int playerToMove, int pawnTwoSquar
     return pseudoLegalMoves;
 }
 
+std::list<Move> GenerateAllLegalMoves(Board board, int playerToMove, int pawnTwoSquareFile)
+{
+    std::list<Move> pseudoLegalMoves = GenerateAllPseudoLegalMoves(board, playerToMove, pawnTwoSquareFile);
+    std::list<Move> legalMoves = FilterOnCheck(pseudoLegalMoves, board, playerToMove);
+    return legalMoves;
+}
+
 std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove, int pawnTwoSquareFile, Board board)
 {
     std::list<Move> pseudoLegalMoves;
@@ -55,7 +62,8 @@ std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, i
     default:
         break;
     }
-    return pseudoLegalMoves;
+    std::list<Move> legalMoves = FilterOnCheck(pseudoLegalMoves, board, playerToMove);
+    return legalMoves;
 }
 
 Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int heldPiece, int pawnTwoSquareFile, Board board)
@@ -67,6 +75,32 @@ Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int h
             return pseudoLegalMove;
     }
     return Move();
+}
+
+std::list<Move> FilterOnCheck(std::list<Move> pseudoLegalMoves, Board board, int playerToMove)
+{
+    std::list<Move> legalMoves;
+    int otherPlayer = playerToMove == WHITE ? BLACK : WHITE;
+
+    for (Move pseudoLegalMove : pseudoLegalMoves)
+    {
+        Board newBoard = board;
+        newBoard.MovePiece(pseudoLegalMove);
+        int kingSquare = newBoard.pieceSquaresOfType[KING | playerToMove].front();
+        std::list<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(newBoard, otherPlayer, newBoard.GetPawnTwoSquareFile());
+        if (pseudoLegalMove.GetFlag() == CASTLE)
+        {
+            int passThroughSquare = FileIndex(pseudoLegalMove.GetTo()) == 2 ? kingSquare + 1 : kingSquare - 1;
+            printf("passThroughSquare: %d\n", passThroughSquare);
+            if (IsSquareAttacked(passThroughSquare, otherPlayerMoves))
+                continue;
+        }
+        if (!IsSquareAttacked(kingSquare, otherPlayerMoves))
+        {
+            legalMoves.push_back(pseudoLegalMove);
+        }
+    }
+    return legalMoves;
 }
 
 void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves, int pawnTwoSquareFile)
