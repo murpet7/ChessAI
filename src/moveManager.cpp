@@ -80,6 +80,23 @@ void MoveManager::MoveHeldPiece(Move move, Board &board)
             Castle(to + 1, to - 1, board);
         }
     }
+
+    if (flag == QUEEN_PROMOTION)
+    {
+        Promote(QUEEN, to, board);
+    }
+    else if (flag == ROOK_PROMOTION)
+    {
+        Promote(ROOK, to, board);
+    }
+    else if (flag == BISHOP_PROMOTION)
+    {
+        Promote(BISHOP, to, board);
+    }
+    else if (flag == KNIGHT_PROMOTION)
+    {
+        Promote(KNIGHT, to, board);
+    }
 }
 
 void MoveManager::Castle(int oldRookPos, int newRookPos, Board &board)
@@ -114,6 +131,15 @@ void MoveManager::CheckCastleRights(int pieceType, int square, Board &board)
             board.RemoveKingsideCastle(playerToMove);
         }
     }
+}
+
+void MoveManager::Promote(int promotionType, int square, Board &board)
+{
+    board.pieces[square] = promotionType | playerToMove;
+    std::list<int> &pawnIndices = board.pieceSquaresOfType[PAWN | playerToMove];
+    std::list<int> &promotionIndices = board.pieceSquaresOfType[promotionType | playerToMove];
+    pawnIndices.remove(square);
+    promotionIndices.push_back(square);
 }
 
 void MoveManager::FinishTurn()

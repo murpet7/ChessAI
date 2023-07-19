@@ -71,15 +71,22 @@ Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int h
 
 void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves, int pawnTwoSquareFile)
 {
-    // Add promotion
     bool isWhite = playerToMove == WHITE;
     int direction = isWhite ? -8 : 8;
     int forwardSquare = square + direction;
     int squareRank = RankIndex(square);
     int squareFile = FileIndex(square);
+    int forwardSquareRank = RankIndex(forwardSquare);
     if (pieces[forwardSquare] == NONE)
     {
-        pseudoLegalMoves.push_back(Move(square, forwardSquare));
+        if (forwardSquareRank == 0 || forwardSquareRank == 7)
+        {
+            AddPromotions(square, forwardSquare, pseudoLegalMoves);
+        }
+        else
+        {
+            pseudoLegalMoves.push_back(Move(square, forwardSquare));
+        }
         if ((isWhite && squareRank == 6) || (!isWhite && squareRank == 1))
         {
             int doubleForwardSquare = forwardSquare + direction;
@@ -92,12 +99,26 @@ void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Mov
     int leftCaptureSquare = forwardSquare - 1;
     if (RankIndex(leftCaptureSquare) == RankIndex(forwardSquare) && IsCapturableSquare(pieces, leftCaptureSquare, playerToMove))
     {
-        pseudoLegalMoves.push_back(Move(square, leftCaptureSquare));
+        if (forwardSquareRank == 0 || forwardSquareRank == 7)
+        {
+            AddPromotions(square, leftCaptureSquare, pseudoLegalMoves);
+        }
+        else
+        {
+            pseudoLegalMoves.push_back(Move(square, leftCaptureSquare));
+        }
     }
     int rightCaptureSquare = forwardSquare + 1;
     if (RankIndex(rightCaptureSquare) == RankIndex(forwardSquare) && IsCapturableSquare(pieces, rightCaptureSquare, playerToMove))
     {
-        pseudoLegalMoves.push_back(Move(square, rightCaptureSquare));
+        if (forwardSquareRank == 0 || forwardSquareRank == 7)
+        {
+            AddPromotions(square, rightCaptureSquare, pseudoLegalMoves);
+        }
+        else
+        {
+            pseudoLegalMoves.push_back(Move(square, rightCaptureSquare));
+        }
     }
     if ((isWhite && squareRank == 3) || (!isWhite && squareRank == 4))
     {
@@ -150,7 +171,6 @@ void GenerateQueenMoves(int pieces[], int square, int playerToMove, std::list<Mo
 
 void GenerateKingMoves(int pieces[], int square, int playerToMove, Board board, std::list<Move> &pseudoLegalMoves)
 {
-    // add castling
     int directions[8] = {-9, -8, -7, -1, 1, 7, 8, 9};
     int deltaRanks[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
     int deltaFiles[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
@@ -261,4 +281,12 @@ bool IsSquareAttacked(int square, std::list<Move> moves)
         }
     }
     return false;
+}
+
+void AddPromotions(int from, int to, std::list<Move> &pseudoLegalMoves)
+{
+    pseudoLegalMoves.push_back(Move(from, to, QUEEN_PROMOTION));
+    pseudoLegalMoves.push_back(Move(from, to, ROOK_PROMOTION));
+    pseudoLegalMoves.push_back(Move(from, to, BISHOP_PROMOTION));
+    pseudoLegalMoves.push_back(Move(from, to, KNIGHT_PROMOTION));
 }

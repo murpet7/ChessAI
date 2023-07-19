@@ -30,4 +30,5 @@ private:
     void Castle(int oldRookPos, int newRookPos, Board &board);
     void CheckCastleRights(int pieceType, int square, Board &board);
     void FinishTurn();
+    void Promote(int promotionType, int square, Board &board);
 };

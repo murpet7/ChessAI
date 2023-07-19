@@ -34,3 +34,4 @@ bool IsEmptySquare(int pieces[], int square);
 bool IsEmptySquareOrCapturable(int pieces[], int square, int playerToMove);
 int NumSquaresToEdge(int square, int direction);
 bool IsSquareAttacked(int square, std::list<Move> moves);
+void AddPromotions(int from, int to, std::list<Move> &pseudoLegalMoves);
