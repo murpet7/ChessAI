@@ -16,13 +16,15 @@ public:
     int GetHeldPiece();
     int GetHeldPieceIndex();
     int GetPlayerToMove();
+    int GetPawnTwoSquareFile();
 
 private:
     int playerToMove = WHITE;
     int heldPiece = NONE;
     int heldPieceIndex;
+    int pawnTwoSquareFile = -2;
     bool IsOutOfBounds(int x, int y);
     void ReturnHeldPiece(Board &board);
-    void MoveHeldPiece(int newSquare, Board &board);
+    void MoveHeldPiece(Move move, Board &board);
     void FinishTurn();
 };

@@ -2,33 +2,35 @@
 
 Move::Move()
 {
-    this->piece = 0;
-    this->from = 0;
-    this->to = 0;
-    this->capturedPiece = 0;
-    this->promotedPiece = 0;
-    this->flags = 0;
-    this->score = 0;
+    moveValue = 0;
 }
 
 Move::Move(int from, int to)
 {
-    this->piece = 0;
-    this->from = from;
-    this->to = to;
-    this->capturedPiece = 0;
-    this->promotedPiece = 0;
-    this->flags = 0;
-    this->score = 0;
+    moveValue = (unsigned short)(from | to << 6);
 }
 
-Move::Move(int piece, int from, int to, int capturedPiece, int promotedPiece, int flags, int score)
+Move::Move(int from, int to, int flag)
 {
-    this->piece = piece;
-    this->from = from;
-    this->to = to;
-    this->capturedPiece = capturedPiece;
-    this->promotedPiece = promotedPiece;
-    this->flags = flags;
-    this->score = score;
+    moveValue = (unsigned short)(from | to << 6 | flag << 12);
+}
+
+int Move::GetFrom()
+{
+    return moveValue & fromMask;
+}
+
+int Move::GetTo()
+{
+    return (moveValue & toMask) >> 6;
+}
+
+int Move::GetFlag()
+{
+    return (moveValue & flagMask) >> 12;
+}
+
+bool IsSameMove(Move move1, Move move2)
+{
+    return move1.moveValue == move2.moveValue;
 }

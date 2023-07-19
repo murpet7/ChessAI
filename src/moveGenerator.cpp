@@ -1,11 +1,11 @@
 #include "headers/moveGenerator.hpp"
 
-std::list<Move> GenerateAllMoves(Board board, int playerToMove)
+std::list<Move> GenerateAllMoves(Board board, int playerToMove, int pawnTwoSquareFile)
 {
     std::list<Move> pseudoLegalMoves;
     std::list<int> squares = board.pieceSquaresOfType[PAWN | playerToMove];
     for (int square : squares)
-        GeneratePawnMoves(board.pieces, square, playerToMove, pseudoLegalMoves);
+        GeneratePawnMoves(board.pieces, square, playerToMove, pseudoLegalMoves, pawnTwoSquareFile);
 
     squares = board.pieceSquaresOfType[KNIGHT | playerToMove];
     for (int square : squares)
@@ -29,13 +29,13 @@ std::list<Move> GenerateAllMoves(Board board, int playerToMove)
     return pseudoLegalMoves;
 }
 
-std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove)
+std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove, int pawnTwoSquareFile)
 {
     std::list<Move> pseudoLegalMoves;
     switch (heldPiece - playerToMove)
     {
     case PAWN:
-        GeneratePawnMoves(pieces, square, playerToMove, pseudoLegalMoves);
+        GeneratePawnMoves(pieces, square, playerToMove, pseudoLegalMoves, pawnTwoSquareFile);
         break;
     case KNIGHT:
         GenerateKnightMoves(pieces, square, playerToMove, pseudoLegalMoves);
@@ -58,32 +58,34 @@ std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, i
     return pseudoLegalMoves;
 }
 
-bool IsLegalMove(Move move, int playerToMove, int pieces[], int heldPiece)
+Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int heldPiece, int pawnTwoSquareFile)
 {
-    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, move.from, heldPiece, playerToMove);
+    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, from, heldPiece, playerToMove, pawnTwoSquareFile);
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
-        if (pseudoLegalMove.to == move.to)
-            return true;
+        if (pseudoLegalMove.GetTo() == to)
+            return pseudoLegalMove;
     }
-    return false;
+    return Move();
 }
 
-void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves)
+void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves, int pawnTwoSquareFile)
 {
-    // Add en passant en promotion
+    // Add promotion
     bool isWhite = playerToMove == WHITE;
     int direction = isWhite ? -8 : 8;
     int forwardSquare = square + direction;
+    int squareRank = RankIndex(square);
+    int squareFile = FileIndex(square);
     if (pieces[forwardSquare] == NONE)
     {
         pseudoLegalMoves.push_back(Move(square, forwardSquare));
-        if ((isWhite && RankIndex(square) == 6) || (!isWhite && RankIndex(square) == 1))
+        if ((isWhite && squareRank == 6) || (!isWhite && squareRank == 1))
         {
             int doubleForwardSquare = forwardSquare + direction;
             if (pieces[doubleForwardSquare] == NONE)
             {
-                pseudoLegalMoves.push_back(Move(square, doubleForwardSquare));
+                pseudoLegalMoves.push_back(Move(square, doubleForwardSquare, PAWN_TWO_SQUARES));
             }
         }
     }
@@ -96,6 +98,17 @@ void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Mov
     if (RankIndex(rightCaptureSquare) == RankIndex(forwardSquare) && IsCapturableSquare(pieces, rightCaptureSquare, playerToMove))
     {
         pseudoLegalMoves.push_back(Move(square, rightCaptureSquare));
+    }
+    if ((isWhite && squareRank == 3) || (!isWhite && squareRank == 4))
+    {
+        if (pawnTwoSquareFile == squareFile - 1)
+        {
+            pseudoLegalMoves.push_back(Move(square, leftCaptureSquare, EN_PASSANT));
+        }
+        if (pawnTwoSquareFile == squareFile + 1)
+        {
+            pseudoLegalMoves.push_back(Move(square, rightCaptureSquare, EN_PASSANT));
+        }
     }
 }
 
@@ -137,6 +150,7 @@ void GenerateQueenMoves(int pieces[], int square, int playerToMove, std::list<Mo
 
 void GenerateKingMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves)
 {
+    // add castling
     int directions[8] = {-9, -8, -7, -1, 1, 7, 8, 9};
     int deltaRanks[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
     int deltaFiles[8] = {-1, 0, 1, -1, 1, -1, 0, 1};

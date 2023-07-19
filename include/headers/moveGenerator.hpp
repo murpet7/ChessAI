@@ -16,11 +16,11 @@
 #define WEST -1
 #define NORTH_WEST -9
 
-std::list<Move> GenerateAllMoves(Board board, int playerToMove);
-std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove);
-bool IsLegalMove(Move move, int playerToMove, int pieces[], int heldPiece);
+std::list<Move> GenerateAllMoves(Board board, int playerToMove, int pawnTwoSquareFile);
+std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove, int pawnTwoSquareFile);
+Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int heldPiece, int pawnTwoSquareFile);
 
-void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
+void GeneratePawnMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves, int pawnTwoSquareFile);
 void GenerateKnightMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
 void GenerateBishopMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);
 void GenerateRookMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves);

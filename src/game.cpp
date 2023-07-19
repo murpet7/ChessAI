@@ -18,7 +18,7 @@ void Game::Init()
 void Game::Update()
 {
     eventManager.Update(running, moveManager, board);
-    renderer.Update(board, moveManager.GetHeldPiece(), moveManager.GetHeldPieceIndex(), moveManager.GetPlayerToMove());
+    renderer.Update(board, moveManager.GetHeldPiece(), moveManager.GetHeldPieceIndex(), moveManager.GetPlayerToMove(), moveManager.GetPawnTwoSquareFile());
 }
 
 void Game::Quit()

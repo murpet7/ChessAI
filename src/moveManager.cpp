@@ -25,9 +25,10 @@ void MoveManager::DropPiece(int x, int y, Board &board)
     if (heldPiece == NONE)
         return;
     int newSquare = GetTileFromMouse(x, y);
-    if (newSquare != -1 && IsLegalMove(Move(heldPieceIndex, newSquare), playerToMove, board.pieces, heldPiece))
+    Move move = MoveFromStartAndEnd(heldPieceIndex, newSquare, playerToMove, board.pieces, heldPiece, pawnTwoSquareFile);
+    if (newSquare != -1 && move.moveValue != 0)
     {
-        MoveHeldPiece(newSquare, board);
+        MoveHeldPiece(move, board);
         FinishTurn();
     }
     else
@@ -44,12 +45,23 @@ void MoveManager::ReturnHeldPiece(Board &board)
     heldPiece = NONE;
 }
 
-void MoveManager::MoveHeldPiece(int newSquare, Board &board)
+void MoveManager::MoveHeldPiece(Move move, Board &board)
 {
-    board.pieces[newSquare] = heldPiece;
+    board.pieces[move.GetTo()] = heldPiece;
     std::list<int> &indices = board.pieceSquaresOfType[heldPiece];
-    indices.push_back(newSquare);
+    indices.push_back(move.GetTo());
     heldPiece = NONE;
+
+    if (move.GetFlag() == PAWN_TWO_SQUARES)
+        pawnTwoSquareFile = FileIndex(move.GetTo());
+    else
+        pawnTwoSquareFile = -2;
+
+    if (move.GetFlag() == EN_PASSANT)
+    {
+        int captureSquare = SquareIndex(FileIndex(move.GetTo()), RankIndex(move.GetFrom()));
+        board.pieces[captureSquare] = NONE;
+    }
 }
 
 void MoveManager::FinishTurn()
@@ -82,4 +94,9 @@ int MoveManager::GetPlayerToMove()
 int MoveManager::GetHeldPieceIndex()
 {
     return heldPieceIndex;
+}
+
+int MoveManager::GetPawnTwoSquareFile()
+{
+    return pawnTwoSquareFile;
 }
