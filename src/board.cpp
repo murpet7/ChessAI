@@ -77,3 +77,35 @@ int Board::PieceTypeFromChar(char c)
     }
     return pieceType;
 }
+
+bool Board::CanCastleKingside(int playerToMove)
+{
+    if (playerToMove == WHITE)
+        return castleMask & whiteCastleKingsideMask;
+    else
+        return castleMask & blackCastleKingsideMask;
+}
+
+bool Board::CanCastleQueenside(int playerToMove)
+{
+    if (playerToMove == WHITE)
+        return castleMask & whiteCastleQueensideMask;
+    else
+        return castleMask & blackCastleQueensideMask;
+}
+
+void Board::RemoveKingsideCastle(int playerToMove)
+{
+    if (playerToMove == WHITE)
+        castleMask &= ~whiteCastleKingsideMask;
+    else
+        castleMask &= ~blackCastleKingsideMask;
+}
+
+void Board::RemoveQueensideCastle(int playerToMove)
+{
+    if (playerToMove == WHITE)
+        castleMask &= ~whiteCastleQueensideMask;
+    else
+        castleMask &= ~blackCastleQueensideMask;
+}

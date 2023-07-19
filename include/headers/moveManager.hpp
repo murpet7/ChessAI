@@ -6,6 +6,7 @@
 #include "headers/renderer.hpp"
 #include "headers/moveGenerator.hpp"
 #include "headers/piece.hpp"
+#include "headers/boardRepresentation.hpp"
 
 class MoveManager
 {
@@ -26,5 +27,7 @@ private:
     bool IsOutOfBounds(int x, int y);
     void ReturnHeldPiece(Board &board);
     void MoveHeldPiece(Move move, Board &board);
+    void Castle(int oldRookPos, int newRookPos, Board &board);
+    void CheckCastleRights(int pieceType, int square, Board &board);
     void FinishTurn();
 };

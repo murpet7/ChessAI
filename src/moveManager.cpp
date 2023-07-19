@@ -25,7 +25,7 @@ void MoveManager::DropPiece(int x, int y, Board &board)
     if (heldPiece == NONE)
         return;
     int newSquare = GetTileFromMouse(x, y);
-    Move move = MoveFromStartAndEnd(heldPieceIndex, newSquare, playerToMove, board.pieces, heldPiece, pawnTwoSquareFile);
+    Move move = MoveFromStartAndEnd(heldPieceIndex, newSquare, playerToMove, board.pieces, heldPiece, pawnTwoSquareFile, board);
     if (newSquare != -1 && move.moveValue != 0)
     {
         MoveHeldPiece(move, board);
@@ -47,20 +47,72 @@ void MoveManager::ReturnHeldPiece(Board &board)
 
 void MoveManager::MoveHeldPiece(Move move, Board &board)
 {
-    board.pieces[move.GetTo()] = heldPiece;
+    int to = move.GetTo();
+    int from = move.GetFrom();
+
+    CheckCastleRights(heldPiece, from, board);
+
+    board.pieces[to] = heldPiece;
     std::list<int> &indices = board.pieceSquaresOfType[heldPiece];
-    indices.push_back(move.GetTo());
+    indices.push_back(to);
     heldPiece = NONE;
 
-    if (move.GetFlag() == PAWN_TWO_SQUARES)
-        pawnTwoSquareFile = FileIndex(move.GetTo());
+    int flag = move.GetFlag();
+    if (flag == PAWN_TWO_SQUARES)
+        pawnTwoSquareFile = FileIndex(to);
     else
         pawnTwoSquareFile = -2;
 
-    if (move.GetFlag() == EN_PASSANT)
+    if (flag == EN_PASSANT)
     {
-        int captureSquare = SquareIndex(FileIndex(move.GetTo()), RankIndex(move.GetFrom()));
+        int captureSquare = SquareIndex(FileIndex(to), RankIndex(from));
         board.pieces[captureSquare] = NONE;
+    }
+
+    if (flag == CASTLE)
+    {
+        if (FileIndex(to) == 2)
+        {
+            Castle(to - 2, to + 1, board);
+        }
+        else
+        {
+            Castle(to + 1, to - 1, board);
+        }
+    }
+}
+
+void MoveManager::Castle(int oldRookPos, int newRookPos, Board &board)
+{
+    int pieceType = ROOK | playerToMove;
+
+    board.pieces[oldRookPos] = NONE;
+    std::list<int> &indices = board.pieceSquaresOfType[pieceType];
+    indices.remove(oldRookPos);
+
+    board.pieces[newRookPos] = pieceType;
+    indices.push_back(newRookPos);
+}
+
+void MoveManager::CheckCastleRights(int pieceType, int square, Board &board)
+{
+    if (pieceType == (KING | playerToMove))
+    {
+        printf("King moved\n");
+        board.RemoveKingsideCastle(playerToMove);
+        board.RemoveQueensideCastle(playerToMove);
+    }
+    if (pieceType == (ROOK | playerToMove))
+    {
+        printf("Rook moved\n");
+        if (FileIndex(square) == 0)
+        {
+            board.RemoveQueensideCastle(playerToMove);
+        }
+        else if (FileIndex(square) == 7)
+        {
+            board.RemoveKingsideCastle(playerToMove);
+        }
     }
 }
 

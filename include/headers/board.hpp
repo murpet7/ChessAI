@@ -18,9 +18,21 @@ class Board
 {
 public:
     int pieces[64] = {NONE};
+
+    unsigned short castleMask = 0b1111;
     std::map<int, SDL_Texture *> pieceTextures;
     std::map<int, std::list<int>> pieceSquaresOfType;
     Board();
     void PiecesFromFEN(std::string FEN);
     int PieceTypeFromChar(char c);
+
+    const unsigned short whiteCastleKingsideMask = 0b0001;
+    const unsigned short whiteCastleQueensideMask = 0b0010;
+    const unsigned short blackCastleKingsideMask = 0b0100;
+    const unsigned short blackCastleQueensideMask = 0b1000;
+
+    bool CanCastleKingside(int playerToMove);
+    bool CanCastleQueenside(int playerToMove);
+    void RemoveKingsideCastle(int playerToMove);
+    void RemoveQueensideCastle(int playerToMove);
 };

@@ -25,11 +25,11 @@ std::list<Move> GenerateAllMoves(Board board, int playerToMove, int pawnTwoSquar
 
     squares = board.pieceSquaresOfType[KING | playerToMove];
     for (int square : squares)
-        GenerateKingMoves(board.pieces, square, playerToMove, pseudoLegalMoves);
+        GenerateKingMoves(board.pieces, square, playerToMove, board, pseudoLegalMoves);
     return pseudoLegalMoves;
 }
 
-std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove, int pawnTwoSquareFile)
+std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int playerToMove, int pawnTwoSquareFile, Board board)
 {
     std::list<Move> pseudoLegalMoves;
     switch (heldPiece - playerToMove)
@@ -50,7 +50,7 @@ std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, i
         GenerateQueenMoves(pieces, square, playerToMove, pseudoLegalMoves);
         break;
     case KING:
-        GenerateKingMoves(pieces, square, playerToMove, pseudoLegalMoves);
+        GenerateKingMoves(pieces, square, playerToMove, board, pseudoLegalMoves);
         break;
     default:
         break;
@@ -58,9 +58,9 @@ std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, i
     return pseudoLegalMoves;
 }
 
-Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int heldPiece, int pawnTwoSquareFile)
+Move MoveFromStartAndEnd(int from, int to, int playerToMove, int pieces[], int heldPiece, int pawnTwoSquareFile, Board board)
 {
-    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, from, heldPiece, playerToMove, pawnTwoSquareFile);
+    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, from, heldPiece, playerToMove, pawnTwoSquareFile, board);
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
         if (pseudoLegalMove.GetTo() == to)
@@ -148,7 +148,7 @@ void GenerateQueenMoves(int pieces[], int square, int playerToMove, std::list<Mo
     GenerateSlidingMoves(pieces, square, playerToMove, directions, pseudoLegalMoves);
 }
 
-void GenerateKingMoves(int pieces[], int square, int playerToMove, std::list<Move> &pseudoLegalMoves)
+void GenerateKingMoves(int pieces[], int square, int playerToMove, Board board, std::list<Move> &pseudoLegalMoves)
 {
     // add castling
     int directions[8] = {-9, -8, -7, -1, 1, 7, 8, 9};
@@ -162,6 +162,20 @@ void GenerateKingMoves(int pieces[], int square, int playerToMove, std::list<Mov
         if (IsEmptySquareOrCapturable(pieces, newSquare, playerToMove))
         {
             pseudoLegalMoves.push_back(Move(square, newSquare));
+        }
+    }
+    if (board.CanCastleKingside(playerToMove))
+    {
+        if (IsEmptySquare(pieces, square + 1) && IsEmptySquare(pieces, square + 2))
+        {
+            pseudoLegalMoves.push_back(Move(square, square + 2, CASTLE));
+        }
+    }
+    if (board.CanCastleQueenside(playerToMove))
+    {
+        if (IsEmptySquare(pieces, square - 1) && IsEmptySquare(pieces, square - 2) && IsEmptySquare(pieces, square - 3))
+        {
+            pseudoLegalMoves.push_back(Move(square, square - 2, CASTLE));
         }
     }
 }
@@ -235,4 +249,16 @@ int NumSquaresToEdge(int square, int direction)
     default:
         return 0;
     }
+}
+
+bool IsSquareAttacked(int square, std::list<Move> moves)
+{
+    for (Move move : moves)
+    {
+        if (move.GetTo() == square)
+        {
+            return true;
+        }
+    }
+    return false;
 }
