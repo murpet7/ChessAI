@@ -21,9 +21,10 @@ void Board::MovePiece(Move move)
         std::list<int> &indices = pieceSquaresOfType[capturedPiece];
         indices.remove(to);
     }
-    pieces[from] = NONE;
-    pieces[to] = pieceType;
     std::list<int> &indices = pieceSquaresOfType[pieceType];
+    pieces[from] = NONE;
+    indices.remove(from);
+    pieces[to] = pieceType;
     indices.push_back(to);
 
     int flag = move.GetFlag();
