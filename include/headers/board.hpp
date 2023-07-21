@@ -22,6 +22,7 @@ public:
 
     unsigned short castleMask = 0b1111;
     int pawnTwoSquareFile = -2;
+    int colorToMove = WHITE;
     std::map<int, SDL_Texture *> pieceTextures;
     std::map<int, std::list<int>> pieceSquaresOfType;
     Board();
@@ -48,10 +49,10 @@ public:
 private:
     // bool IsOutOfBounds(int x, int y);
     // void ReturnHeldPiece();
-    void Castle(int oldRookPos, int newRookPos, int colorToMove);
-    void CheckCastleRights(int pieceType, int square, int colorToMove);
-    void FinishTurn(int colorToMove);
-    void Promote(int promotionType, int square, int colorToMove);
+    void Castle(int oldRookPos, int newRookPos);
+    void CheckCastleRights(int pieceType, int square);
+    void FinishTurn();
+    void Promote(int promotionType, int square);
     int PieceTypeFromChar(char c);
     // int GetTileFromMouse(int mouseX, int mouseY);
 };

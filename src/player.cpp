@@ -8,7 +8,11 @@ void Player::NotifyTurnToMove(Move move)
 Move Player::GetChosenMove()
 {
     if (isMoveChosen)
+    {
+        isMoveChosen = false;
+        heldPiece = NONE;
         return chosenMove;
+    }
     return Move();
 }
 

@@ -13,10 +13,9 @@ void HumanPlayer::PickupPiece(int mouseX, int mouseY)
 {
     heldPieceIndex = GetTileFromMouse(mouseX, mouseY);
     heldPiece = board.pieces[heldPieceIndex];
-    board.pieces[heldPieceIndex] = NONE;
     std::list<int> &indices = board.pieceSquaresOfType[heldPiece];
     indices.remove(heldPieceIndex);
-    if (PieceIsColor(heldPiece, colorToMove) || heldPiece == NONE)
+    if (PieceIsColor(board.colorToMove, heldPiece) || heldPiece == NONE)
         ReturnHeldPiece();
 }
 
@@ -25,9 +24,10 @@ void HumanPlayer::DropPiece(int mouseX, int mouseY)
     if (heldPiece == NONE)
         return;
     int newSquare = GetTileFromMouse(mouseX, mouseY);
-    Move move = ToMove(heldPieceIndex, newSquare, colorToMove, board.pieces, heldPiece, board.pawnTwoSquareFile, board);
+    Move move = ToMove(heldPieceIndex, newSquare, board.colorToMove, board.pieces, heldPiece, board.pawnTwoSquareFile, board);
     if (newSquare != -1 && move.moveValue != 0)
     {
+        board.pieces[heldPieceIndex] = heldPiece;
         board.MovePiece(move);
         chosenMove = move;
         isMoveChosen = true;

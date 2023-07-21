@@ -8,9 +8,9 @@
 class EventManager
 {
 public:
-    void Update(bool &running, Board &board, Player &playerToMove);
+    void Update(bool &running, Player &playerToMove);
 
 private:
-    void OnMouseDown(Board &board, Player &playerToMove);
-    void OnMouseUp(Board &board, Player &playerToMove);
+    void OnMouseDown(Player &playerToMove);
+    void OnMouseUp(Player &playerToMove);
 };

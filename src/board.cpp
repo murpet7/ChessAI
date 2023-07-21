@@ -13,7 +13,7 @@ void Board::MovePiece(Move move)
 
     int pieceType = pieces[from];
     int colorToMove = GetPieceColor(pieceType);
-    CheckCastleRights(pieceType, from, colorToMove);
+    CheckCastleRights(pieceType, from);
 
     int capturedPiece = pieces[to];
     if (capturedPiece != NONE)
@@ -21,6 +21,7 @@ void Board::MovePiece(Move move)
         std::list<int> &indices = pieceSquaresOfType[capturedPiece];
         indices.remove(to);
     }
+    pieces[from] = NONE;
     pieces[to] = pieceType;
     std::list<int> &indices = pieceSquaresOfType[pieceType];
     indices.push_back(to);
@@ -41,34 +42,34 @@ void Board::MovePiece(Move move)
     {
         if (FileIndex(to) == 2)
         {
-            Castle(to - 2, to + 1, colorToMove);
+            Castle(to - 2, to + 1);
         }
         else
         {
-            Castle(to + 1, to - 1, colorToMove);
+            Castle(to + 1, to - 1);
         }
     }
 
     if (flag == QUEEN_PROMOTION)
     {
-        Promote(QUEEN, to, colorToMove);
+        Promote(QUEEN, to);
     }
     else if (flag == ROOK_PROMOTION)
     {
-        Promote(ROOK, to, colorToMove);
+        Promote(ROOK, to);
     }
     else if (flag == BISHOP_PROMOTION)
     {
-        Promote(BISHOP, to, colorToMove);
+        Promote(BISHOP, to);
     }
     else if (flag == KNIGHT_PROMOTION)
     {
-        Promote(KNIGHT, to, colorToMove);
+        Promote(KNIGHT, to);
     }
-    FinishTurn(colorToMove);
+    FinishTurn();
 }
 
-void Board::Castle(int oldRookPos, int newRookPos, int colorToMove)
+void Board::Castle(int oldRookPos, int newRookPos)
 {
     int pieceType = ROOK | colorToMove;
 
@@ -80,7 +81,7 @@ void Board::Castle(int oldRookPos, int newRookPos, int colorToMove)
     indices.push_back(newRookPos);
 }
 
-void Board::CheckCastleRights(int pieceType, int square, int colorToMove)
+void Board::CheckCastleRights(int pieceType, int square)
 {
     if (pieceType == (KING | colorToMove))
     {
@@ -100,7 +101,7 @@ void Board::CheckCastleRights(int pieceType, int square, int colorToMove)
     }
 }
 
-void Board::Promote(int promotionType, int square, int colorToMove)
+void Board::Promote(int promotionType, int square)
 {
     pieces[square] = promotionType | colorToMove;
     std::list<int> &pawnIndices = pieceSquaresOfType[PAWN | colorToMove];
@@ -109,7 +110,7 @@ void Board::Promote(int promotionType, int square, int colorToMove)
     promotionIndices.push_back(square);
 }
 
-void Board::FinishTurn(int colorToMove)
+void Board::FinishTurn()
 {
     if (colorToMove == WHITE)
         colorToMove = BLACK;

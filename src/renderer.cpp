@@ -52,7 +52,7 @@ void Renderer::Update(Board board, int heldPiece, int heldPieceSquare, int color
     RenderBackground();
     RenderBoard();
     RenderLegalMoves(board, heldPiece, heldPieceSquare, colorToMove, pawnTwoSquareFile);
-    RenderPieces(board);
+    RenderPieces(board, heldPieceSquare, heldPiece);
     RenderDraggedPiece(heldPiece);
     SDL_RenderPresent(SDLRenderer);
 }
@@ -83,12 +83,14 @@ void Renderer::RenderBoard()
     }
 }
 
-void Renderer::RenderPieces(Board board)
+void Renderer::RenderPieces(Board board, int heldPieceSquare, int heldPiece)
 {
     for (int y = 0; y < ROW_SIZE; y++)
     {
         for (int x = 0; x < COLUMN_SIZE; x++)
         {
+            if (SquareIndex(x, y) == heldPieceSquare && heldPiece != NONE)
+                continue;
             SDL_Rect rect = {x * TILE_SIZE + BOARD_X, y * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};
             SDL_Texture *texture = pieceTextures[board.pieces[SquareIndex(x, y)]];
             SDL_RenderCopy(SDLRenderer, texture, NULL, &rect);

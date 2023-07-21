@@ -24,7 +24,7 @@ private:
     std::map<int, SDL_Texture *> pieceTextures;
     void LoadPieceTextures();
     void RenderBoard();
-    void RenderPieces(Board board);
+    void RenderPieces(Board board, int heldPieceSquare, int heldPiece);
     void RenderDraggedPiece(int heldPiece);
     void RenderBackground();
     void RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile);

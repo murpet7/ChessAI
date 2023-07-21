@@ -5,7 +5,6 @@
 class Player
 {
 public:
-    int colorToMove = WHITE;
     int heldPiece = NONE;
     int heldPieceIndex;
     Board board;
