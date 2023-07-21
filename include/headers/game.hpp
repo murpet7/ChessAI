@@ -4,6 +4,9 @@
 #include "headers/board.hpp"
 #include "headers/eventManager.hpp"
 #include "headers/renderer.hpp"
+#include "headers/player.hpp"
+#include "headers/humanPlayer.hpp"
+#include "headers/computerPlayer.hpp"
 
 class Game
 {
@@ -17,4 +20,8 @@ private:
     EventManager eventManager;
     Renderer renderer;
     bool running = true;
+    HumanPlayer whitePlayer;
+    HumanPlayer blackPlayer;
+    HumanPlayer *playerToMove;
+    void SwitchTurn(Move move);
 };

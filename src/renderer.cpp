@@ -47,11 +47,11 @@ void Renderer::LoadPieceTextures()
     pieceTextures[BLACK | KING] = bKing;
 }
 
-void Renderer::Update(Board board, int heldPiece, int heldPieceSquare, int playerToMove, int pawnTwoSquareFile)
+void Renderer::Update(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile)
 {
     RenderBackground();
     RenderBoard();
-    RenderLegalMoves(board, heldPiece, heldPieceSquare, playerToMove, pawnTwoSquareFile);
+    RenderLegalMoves(board, heldPiece, heldPieceSquare, colorToMove, pawnTwoSquareFile);
     RenderPieces(board);
     RenderDraggedPiece(heldPiece);
     SDL_RenderPresent(SDLRenderer);
@@ -107,11 +107,11 @@ void Renderer::RenderDraggedPiece(int heldPiece)
     SDL_RenderCopy(SDLRenderer, texture, NULL, &rect);
 }
 
-void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int playerToMove, int pawnTwoSquareFile)
+void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile)
 {
     if (heldPiece == NONE)
         return;
-    std::list<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, heldPiece, playerToMove, pawnTwoSquareFile, board);
+    std::list<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, heldPiece, colorToMove, pawnTwoSquareFile, board);
     for (Move move : legalMoves)
     {
         SDL_Rect rect = {FileIndex(move.GetTo()) * TILE_SIZE + BOARD_X, RankIndex(move.GetTo()) * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};

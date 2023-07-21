@@ -6,62 +6,24 @@ Board::Board()
     PiecesFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 }
 
-int Board::GetTileFromMouse(int mouseX, int mouseY)
-{
-    if (IsOutOfBounds(mouseX, mouseY))
-        return -1;
-    int tileX = (mouseX - BOARD_X) / TILE_SIZE;
-    int tileY = (mouseY - BOARD_Y) / TILE_SIZE;
-    return SquareIndex(tileX, tileY);
-}
-
-void Board::PickupPiece(int x, int y)
-{
-    heldPieceIndex = GetTileFromMouse(x, y);
-    heldPiece = pieces[heldPieceIndex];
-    pieces[heldPieceIndex] = NONE;
-    std::list<int> &indices = pieceSquaresOfType[heldPiece];
-    indices.remove(heldPieceIndex);
-    if (PieceIsColor(heldPiece, playerToMove) || heldPiece == NONE)
-        ReturnHeldPiece();
-}
-
-void Board::DropPiece(int x, int y)
-{
-    if (heldPiece == NONE)
-        return;
-    int newSquare = GetTileFromMouse(x, y);
-    Move move = MoveFromStartAndEnd(heldPieceIndex, newSquare, playerToMove, pieces, heldPiece, pawnTwoSquareFile, *this);
-    if (newSquare != -1 && move.moveValue != 0)
-    {
-        MovePiece(move);
-        FinishTurn();
-    }
-    else
-    {
-        ReturnHeldPiece();
-    }
-}
-
-void Board::ReturnHeldPiece()
-{
-    pieces[heldPieceIndex] = heldPiece;
-    std::list<int> &indices = pieceSquaresOfType[heldPiece];
-    indices.push_back(heldPieceIndex);
-    heldPiece = NONE;
-}
-
 void Board::MovePiece(Move move)
 {
     int to = move.GetTo();
     int from = move.GetFrom();
 
-    CheckCastleRights(heldPiece, from);
+    int pieceType = pieces[from];
+    int colorToMove = GetPieceColor(pieceType);
+    CheckCastleRights(pieceType, from, colorToMove);
 
-    pieces[to] = heldPiece;
-    std::list<int> &indices = pieceSquaresOfType[heldPiece];
+    int capturedPiece = pieces[to];
+    if (capturedPiece != NONE)
+    {
+        std::list<int> &indices = pieceSquaresOfType[capturedPiece];
+        indices.remove(to);
+    }
+    pieces[to] = pieceType;
+    std::list<int> &indices = pieceSquaresOfType[pieceType];
     indices.push_back(to);
-    heldPiece = NONE;
 
     int flag = move.GetFlag();
     if (flag == PAWN_TWO_SQUARES)
@@ -79,35 +41,36 @@ void Board::MovePiece(Move move)
     {
         if (FileIndex(to) == 2)
         {
-            Castle(to - 2, to + 1);
+            Castle(to - 2, to + 1, colorToMove);
         }
         else
         {
-            Castle(to + 1, to - 1);
+            Castle(to + 1, to - 1, colorToMove);
         }
     }
 
     if (flag == QUEEN_PROMOTION)
     {
-        Promote(QUEEN, to);
+        Promote(QUEEN, to, colorToMove);
     }
     else if (flag == ROOK_PROMOTION)
     {
-        Promote(ROOK, to);
+        Promote(ROOK, to, colorToMove);
     }
     else if (flag == BISHOP_PROMOTION)
     {
-        Promote(BISHOP, to);
+        Promote(BISHOP, to, colorToMove);
     }
     else if (flag == KNIGHT_PROMOTION)
     {
-        Promote(KNIGHT, to);
+        Promote(KNIGHT, to, colorToMove);
     }
+    FinishTurn(colorToMove);
 }
 
-void Board::Castle(int oldRookPos, int newRookPos)
+void Board::Castle(int oldRookPos, int newRookPos, int colorToMove)
 {
-    int pieceType = ROOK | playerToMove;
+    int pieceType = ROOK | colorToMove;
 
     pieces[oldRookPos] = NONE;
     std::list<int> &indices = pieceSquaresOfType[pieceType];
@@ -117,72 +80,41 @@ void Board::Castle(int oldRookPos, int newRookPos)
     indices.push_back(newRookPos);
 }
 
-void Board::CheckCastleRights(int pieceType, int square)
+void Board::CheckCastleRights(int pieceType, int square, int colorToMove)
 {
-    if (pieceType == (KING | playerToMove))
+    if (pieceType == (KING | colorToMove))
     {
-        printf("King moved\n");
-        RemoveKingsideCastle(playerToMove);
-        RemoveQueensideCastle(playerToMove);
+        RemoveKingsideCastle(colorToMove);
+        RemoveQueensideCastle(colorToMove);
     }
-    if (pieceType == (ROOK | playerToMove))
+    if (pieceType == (ROOK | colorToMove))
     {
-        printf("Rook moved\n");
         if (FileIndex(square) == 0)
         {
-            RemoveQueensideCastle(playerToMove);
+            RemoveQueensideCastle(colorToMove);
         }
         else if (FileIndex(square) == 7)
         {
-            RemoveKingsideCastle(playerToMove);
+            RemoveKingsideCastle(colorToMove);
         }
     }
 }
 
-void Board::Promote(int promotionType, int square)
+void Board::Promote(int promotionType, int square, int colorToMove)
 {
-    pieces[square] = promotionType | playerToMove;
-    std::list<int> &pawnIndices = pieceSquaresOfType[PAWN | playerToMove];
-    std::list<int> &promotionIndices = pieceSquaresOfType[promotionType | playerToMove];
+    pieces[square] = promotionType | colorToMove;
+    std::list<int> &pawnIndices = pieceSquaresOfType[PAWN | colorToMove];
+    std::list<int> &promotionIndices = pieceSquaresOfType[promotionType | colorToMove];
     pawnIndices.remove(square);
     promotionIndices.push_back(square);
 }
 
-void Board::FinishTurn()
+void Board::FinishTurn(int colorToMove)
 {
-    if (playerToMove == WHITE)
-        playerToMove = BLACK;
+    if (colorToMove == WHITE)
+        colorToMove = BLACK;
     else
-        playerToMove = WHITE;
-}
-
-bool Board::IsOutOfBounds(int x, int y)
-{
-    if (x < BOARD_X || x > BOARD_X + TILE_SIZE * ROW_SIZE || y < BOARD_Y || y > BOARD_Y + TILE_SIZE * COLUMN_SIZE)
-    {
-        return true;
-    }
-    return false;
-}
-
-int Board::GetHeldPiece()
-{
-    return heldPiece;
-}
-
-int Board::GetPlayerToMove()
-{
-    return playerToMove;
-}
-
-int Board::GetHeldPieceIndex()
-{
-    return heldPieceIndex;
-}
-
-int Board::GetPawnTwoSquareFile()
-{
-    return pawnTwoSquareFile;
+        colorToMove = WHITE;
 }
 
 void Board::PiecesFromFEN(std::string FEN)
@@ -258,33 +190,33 @@ int Board::PieceTypeFromChar(char c)
     return pieceType;
 }
 
-bool Board::CanCastleKingside(int playerToMove)
+bool Board::CanCastleKingside(int colorToMove)
 {
-    if (playerToMove == WHITE)
+    if (colorToMove == WHITE)
         return castleMask & whiteCastleKingsideMask;
     else
         return castleMask & blackCastleKingsideMask;
 }
 
-bool Board::CanCastleQueenside(int playerToMove)
+bool Board::CanCastleQueenside(int colorToMove)
 {
-    if (playerToMove == WHITE)
+    if (colorToMove == WHITE)
         return castleMask & whiteCastleQueensideMask;
     else
         return castleMask & blackCastleQueensideMask;
 }
 
-void Board::RemoveKingsideCastle(int playerToMove)
+void Board::RemoveKingsideCastle(int colorToMove)
 {
-    if (playerToMove == WHITE)
+    if (colorToMove == WHITE)
         castleMask &= ~whiteCastleKingsideMask;
     else
         castleMask &= ~blackCastleKingsideMask;
 }
 
-void Board::RemoveQueensideCastle(int playerToMove)
+void Board::RemoveQueensideCastle(int colorToMove)
 {
-    if (playerToMove == WHITE)
+    if (colorToMove == WHITE)
         castleMask &= ~whiteCastleQueensideMask;
     else
         castleMask &= ~blackCastleQueensideMask;

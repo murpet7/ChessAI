@@ -5,6 +5,11 @@ Move::Move()
     moveValue = 0;
 }
 
+Move::Move(unsigned short moveValue)
+{
+    this->moveValue = moveValue;
+}
+
 Move::Move(int from, int to)
 {
     moveValue = (unsigned short)(from | to << 6);

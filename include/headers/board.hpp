@@ -21,17 +21,18 @@ public:
     int pieces[64] = {NONE};
 
     unsigned short castleMask = 0b1111;
+    int pawnTwoSquareFile = -2;
     std::map<int, SDL_Texture *> pieceTextures;
     std::map<int, std::list<int>> pieceSquaresOfType;
     Board();
     void PiecesFromFEN(std::string FEN);
 
-    void PickupPiece(int x, int y);
-    void DropPiece(int x, int y);
-    int GetHeldPiece();
-    int GetHeldPieceIndex();
-    int GetPlayerToMove();
-    int GetPawnTwoSquareFile();
+    // void PickupPiece(int x, int y);
+    // void DropPiece(int x, int y);
+    // int GetHeldPiece();
+    // int GetHeldPieceIndex();
+    // int GetPlayerToMove();
+    // int GetPawnTwoSquareFile();
     void MovePiece(Move move);
 
     const unsigned short whiteCastleKingsideMask = 0b0001;
@@ -39,22 +40,18 @@ public:
     const unsigned short blackCastleKingsideMask = 0b0100;
     const unsigned short blackCastleQueensideMask = 0b1000;
 
-    bool CanCastleKingside(int playerToMove);
-    bool CanCastleQueenside(int playerToMove);
-    void RemoveKingsideCastle(int playerToMove);
-    void RemoveQueensideCastle(int playerToMove);
+    bool CanCastleKingside(int colorToMove);
+    bool CanCastleQueenside(int colorToMove);
+    void RemoveKingsideCastle(int colorToMove);
+    void RemoveQueensideCastle(int colorToMove);
 
 private:
-    int playerToMove = WHITE;
-    int heldPiece = NONE;
-    int heldPieceIndex;
-    int pawnTwoSquareFile = -2;
-    bool IsOutOfBounds(int x, int y);
-    void ReturnHeldPiece();
-    void Castle(int oldRookPos, int newRookPos);
-    void CheckCastleRights(int pieceType, int square);
-    void FinishTurn();
-    void Promote(int promotionType, int square);
+    // bool IsOutOfBounds(int x, int y);
+    // void ReturnHeldPiece();
+    void Castle(int oldRookPos, int newRookPos, int colorToMove);
+    void CheckCastleRights(int pieceType, int square, int colorToMove);
+    void FinishTurn(int colorToMove);
+    void Promote(int promotionType, int square, int colorToMove);
     int PieceTypeFromChar(char c);
-    int GetTileFromMouse(int mouseX, int mouseY);
+    // int GetTileFromMouse(int mouseX, int mouseY);
 };

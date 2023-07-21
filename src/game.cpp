@@ -9,6 +9,8 @@ void Game::Init()
     }
 
     running = true;
+    playerToMove = &whitePlayer;
+
     while (running)
     {
         Update();
@@ -17,8 +19,20 @@ void Game::Init()
 
 void Game::Update()
 {
-    eventManager.Update(running, board);
-    renderer.Update(board, board.GetHeldPiece(), board.GetHeldPieceIndex(), board.GetPlayerToMove(), board.GetPawnTwoSquareFile());
+    Move chosenMove = playerToMove->GetChosenMove();
+    if (chosenMove.moveValue != 0)
+        SwitchTurn(chosenMove);
+    eventManager.Update(running, board, *playerToMove);
+    renderer.Update(playerToMove->board, playerToMove->heldPiece, playerToMove->heldPieceIndex, playerToMove->colorToMove, playerToMove->board.pawnTwoSquareFile);
+}
+
+void Game::SwitchTurn(Move move)
+{
+    if (playerToMove == &whitePlayer)
+        playerToMove = &blackPlayer;
+    else
+        playerToMove = &whitePlayer;
+    playerToMove->NotifyTurnToMove(move);
 }
 
 void Game::Quit()

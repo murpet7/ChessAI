@@ -5,6 +5,7 @@ class Move
 public:
     unsigned short moveValue;
     Move();
+    Move(unsigned short moveValue);
     Move(int from, int to);
     Move(int from, int to, int flag);
     int GetFrom();
@@ -12,9 +13,9 @@ public:
     int GetFlag();
 
 private:
-    const unsigned short fromMask = 0b0000000000111111;
-    const unsigned short toMask = 0b0000111111000000;
-    const unsigned short flagMask = 0b1111000000000000;
+    unsigned short fromMask = 0b0000000000111111;
+    unsigned short toMask = 0b0000111111000000;
+    unsigned short flagMask = 0b1111000000000000;
 };
 
 bool IsSameMove(Move move1, Move move2);
