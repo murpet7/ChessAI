@@ -16,10 +16,11 @@ public:
     void Quit();
 
 private:
+    bool running = true;
     Board board;
     EventManager eventManager;
     Renderer renderer;
-    bool running = true;
+
     HumanPlayer whitePlayer;
     ComputerPlayer blackPlayer;
     Player *playerToMove;

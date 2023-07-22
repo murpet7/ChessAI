@@ -79,7 +79,6 @@ Move ToMove(int from, int to, int colorToMove, int pieces[], int heldPiece, int 
 
 std::vector<Move> FilterOnCheck(std::vector<Move> pseudoLegalMoves, Board board, int colorToMove)
 {
-    printf("Filtering on check\n");
     std::vector<Move> legalMoves;
     int otherPlayer = colorToMove == WHITE ? BLACK : WHITE;
 
