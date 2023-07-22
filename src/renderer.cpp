@@ -113,7 +113,7 @@ void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare,
 {
     if (heldPiece == NONE)
         return;
-    std::list<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, heldPiece, colorToMove, pawnTwoSquareFile, board);
+    std::vector<Move> legalMoves = GenerateMovesForPiece(board.pieces, heldPieceSquare, heldPiece, colorToMove, pawnTwoSquareFile, board);
     for (Move move : legalMoves)
     {
         SDL_Rect rect = {FileIndex(move.GetTo()) * TILE_SIZE + BOARD_X, RankIndex(move.GetTo()) * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};

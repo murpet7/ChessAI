@@ -21,7 +21,7 @@ private:
     Renderer renderer;
     bool running = true;
     HumanPlayer whitePlayer;
-    HumanPlayer blackPlayer;
-    HumanPlayer *playerToMove;
+    ComputerPlayer blackPlayer;
+    Player *playerToMove;
     void SwitchTurn(Move move);
 };

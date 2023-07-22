@@ -18,12 +18,12 @@ void Board::MovePiece(Move move)
     int capturedPiece = pieces[to];
     if (capturedPiece != NONE)
     {
-        std::list<int> &indices = pieceSquaresOfType[capturedPiece];
-        indices.remove(to);
+        std::vector<int> &indices = pieceSquaresOfType[capturedPiece];
+        indices.erase(std::remove(indices.begin(), indices.end(), to), indices.end());
     }
-    std::list<int> &indices = pieceSquaresOfType[pieceType];
+    std::vector<int> &indices = pieceSquaresOfType[pieceType];
     pieces[from] = NONE;
-    indices.remove(from);
+    indices.erase(std::remove(indices.begin(), indices.end(), from), indices.end());
     pieces[to] = pieceType;
     indices.push_back(to);
 
@@ -75,8 +75,8 @@ void Board::Castle(int oldRookPos, int newRookPos)
     int pieceType = ROOK | colorToMove;
 
     pieces[oldRookPos] = NONE;
-    std::list<int> &indices = pieceSquaresOfType[pieceType];
-    indices.remove(oldRookPos);
+    std::vector<int> &indices = pieceSquaresOfType[pieceType];
+    indices.erase(std::remove(indices.begin(), indices.end(), oldRookPos), indices.end());
 
     pieces[newRookPos] = pieceType;
     indices.push_back(newRookPos);
@@ -105,9 +105,9 @@ void Board::CheckCastleRights(int pieceType, int square)
 void Board::Promote(int promotionType, int square)
 {
     pieces[square] = promotionType | colorToMove;
-    std::list<int> &pawnIndices = pieceSquaresOfType[PAWN | colorToMove];
-    std::list<int> &promotionIndices = pieceSquaresOfType[promotionType | colorToMove];
-    pawnIndices.remove(square);
+    std::vector<int> &pawnIndices = pieceSquaresOfType[PAWN | colorToMove];
+    std::vector<int> &promotionIndices = pieceSquaresOfType[promotionType | colorToMove];
+    pawnIndices.erase(std::remove(pawnIndices.begin(), pawnIndices.end(), square), pawnIndices.end());
     promotionIndices.push_back(square);
 }
 
@@ -139,7 +139,7 @@ void Board::PiecesFromFEN(std::string FEN)
         {
             int squareIndex = SquareIndex(file, rank);
             int pieceType = PieceTypeFromChar(FEN[i]);
-            std::list<int> &indices = pieceSquaresOfType[pieceType];
+            std::vector<int> &indices = pieceSquaresOfType[pieceType];
             indices.push_back(squareIndex);
             pieces[squareIndex] = pieceType;
             file++;

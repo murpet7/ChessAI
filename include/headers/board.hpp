@@ -2,7 +2,8 @@
 
 #include <string>
 #include <map>
-#include <list>
+#include <vector>
+#include <algorithm>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "headers/move.hpp"
@@ -24,7 +25,7 @@ public:
     int pawnTwoSquareFile = -2;
     int colorToMove = WHITE;
     std::map<int, SDL_Texture *> pieceTextures;
-    std::map<int, std::list<int>> pieceSquaresOfType;
+    std::map<int, std::vector<int>> pieceSquaresOfType;
     Board();
     void PiecesFromFEN(std::string FEN);
 

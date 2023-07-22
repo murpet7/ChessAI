@@ -13,10 +13,8 @@ void HumanPlayer::PickupPiece(int mouseX, int mouseY)
 {
     heldPieceIndex = GetTileFromMouse(mouseX, mouseY);
     heldPiece = board.pieces[heldPieceIndex];
-    std::list<int> &indices = board.pieceSquaresOfType[heldPiece];
-    indices.remove(heldPieceIndex);
-    if (PieceIsColor(board.colorToMove, heldPiece) || heldPiece == NONE)
-        ReturnHeldPiece();
+    if (PieceIsColor(board.colorToMove, heldPiece))
+        heldPiece = NONE;
 }
 
 void HumanPlayer::DropPiece(int mouseX, int mouseY)
@@ -27,23 +25,14 @@ void HumanPlayer::DropPiece(int mouseX, int mouseY)
     Move move = ToMove(heldPieceIndex, newSquare, board.colorToMove, board.pieces, heldPiece, board.pawnTwoSquareFile, board);
     if (newSquare != -1 && move.moveValue != 0)
     {
-        board.pieces[heldPieceIndex] = heldPiece;
         board.MovePiece(move);
         chosenMove = move;
         isMoveChosen = true;
     }
     else
     {
-        ReturnHeldPiece();
+        heldPiece = NONE;
     }
-}
-
-void HumanPlayer::ReturnHeldPiece()
-{
-    board.pieces[heldPieceIndex] = heldPiece;
-    std::list<int> &indices = board.pieceSquaresOfType[heldPiece];
-    indices.push_back(heldPieceIndex);
-    heldPiece = NONE;
 }
 
 bool HumanPlayer::IsOutOfBounds(int x, int y)

@@ -1,9 +1,9 @@
 #include "headers/moveGenerator.hpp"
 
-std::list<Move> GenerateAllPseudoLegalMoves(Board board, int colorToMove, int pawnTwoSquareFile)
+std::vector<Move> GenerateAllPseudoLegalMoves(Board board, int colorToMove, int pawnTwoSquareFile)
 {
-    std::list<Move> pseudoLegalMoves;
-    std::list<int> squares = board.pieceSquaresOfType[PAWN | colorToMove];
+    std::vector<Move> pseudoLegalMoves;
+    std::vector<int> squares = board.pieceSquaresOfType[PAWN | colorToMove];
     for (int square : squares)
         GeneratePawnMoves(board.pieces, square, colorToMove, pseudoLegalMoves, pawnTwoSquareFile);
 
@@ -29,16 +29,16 @@ std::list<Move> GenerateAllPseudoLegalMoves(Board board, int colorToMove, int pa
     return pseudoLegalMoves;
 }
 
-std::list<Move> GenerateAllLegalMoves(Board board, int colorToMove, int pawnTwoSquareFile)
+std::vector<Move> GenerateAllLegalMoves(Board board, int colorToMove, int pawnTwoSquareFile)
 {
-    std::list<Move> pseudoLegalMoves = GenerateAllPseudoLegalMoves(board, colorToMove, pawnTwoSquareFile);
-    std::list<Move> legalMoves = FilterOnCheck(pseudoLegalMoves, board, colorToMove);
+    std::vector<Move> pseudoLegalMoves = GenerateAllPseudoLegalMoves(board, colorToMove, pawnTwoSquareFile);
+    std::vector<Move> legalMoves = FilterOnCheck(pseudoLegalMoves, board, colorToMove);
     return legalMoves;
 }
 
-std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int colorToMove, int pawnTwoSquareFile, Board board)
+std::vector<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, int colorToMove, int pawnTwoSquareFile, Board board)
 {
-    std::list<Move> pseudoLegalMoves;
+    std::vector<Move> pseudoLegalMoves;
     switch (heldPiece - colorToMove)
     {
     case PAWN:
@@ -62,13 +62,13 @@ std::list<Move> GenerateMovesForPiece(int pieces[], int square, int heldPiece, i
     default:
         break;
     }
-    std::list<Move> legalMoves = FilterOnCheck(pseudoLegalMoves, board, colorToMove);
+    std::vector<Move> legalMoves = FilterOnCheck(pseudoLegalMoves, board, colorToMove);
     return legalMoves;
 }
 
 Move ToMove(int from, int to, int colorToMove, int pieces[], int heldPiece, int pawnTwoSquareFile, Board board)
 {
-    std::list<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, from, heldPiece, colorToMove, pawnTwoSquareFile, board);
+    std::vector<Move> pseudoLegalMoves = GenerateMovesForPiece(pieces, from, heldPiece, colorToMove, pawnTwoSquareFile, board);
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
         if (pseudoLegalMove.GetTo() == to)
@@ -77,9 +77,10 @@ Move ToMove(int from, int to, int colorToMove, int pieces[], int heldPiece, int 
     return Move();
 }
 
-std::list<Move> FilterOnCheck(std::list<Move> pseudoLegalMoves, Board board, int colorToMove)
+std::vector<Move> FilterOnCheck(std::vector<Move> pseudoLegalMoves, Board board, int colorToMove)
 {
-    std::list<Move> legalMoves;
+    printf("Filtering on check\n");
+    std::vector<Move> legalMoves;
     int otherPlayer = colorToMove == WHITE ? BLACK : WHITE;
 
     for (Move pseudoLegalMove : pseudoLegalMoves)
@@ -87,7 +88,7 @@ std::list<Move> FilterOnCheck(std::list<Move> pseudoLegalMoves, Board board, int
         Board newBoard = board;
         newBoard.MovePiece(pseudoLegalMove);
         int kingSquare = newBoard.pieceSquaresOfType[KING | colorToMove].front();
-        std::list<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(newBoard, otherPlayer, newBoard.pawnTwoSquareFile);
+        std::vector<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(newBoard, otherPlayer, newBoard.pawnTwoSquareFile);
         if (pseudoLegalMove.GetFlag() == CASTLE)
         {
             int passThroughSquare = FileIndex(pseudoLegalMove.GetTo()) == 2 ? kingSquare + 1 : kingSquare - 1;
@@ -102,7 +103,7 @@ std::list<Move> FilterOnCheck(std::list<Move> pseudoLegalMoves, Board board, int
     return legalMoves;
 }
 
-void GeneratePawnMoves(int pieces[], int square, int colorToMove, std::list<Move> &pseudoLegalMoves, int pawnTwoSquareFile)
+void GeneratePawnMoves(int pieces[], int square, int colorToMove, std::vector<Move> &pseudoLegalMoves, int pawnTwoSquareFile)
 {
     bool isWhite = colorToMove == WHITE;
     int direction = isWhite ? -8 : 8;
@@ -166,7 +167,7 @@ void GeneratePawnMoves(int pieces[], int square, int colorToMove, std::list<Move
     }
 }
 
-void GenerateKnightMoves(int pieces[], int square, int colorToMove, std::list<Move> &pseudoLegalMoves)
+void GenerateKnightMoves(int pieces[], int square, int colorToMove, std::vector<Move> &pseudoLegalMoves)
 {
     int directions[8] = {-17, -15, -10, -6, 6, 10, 15, 17};
     int deltaFiles[8] = {-1, 1, -2, 2, -2, 2, -1, 1};
@@ -184,25 +185,25 @@ void GenerateKnightMoves(int pieces[], int square, int colorToMove, std::list<Mo
     }
 }
 
-void GenerateBishopMoves(int pieces[], int square, int colorToMove, std::list<Move> &pseudoLegalMoves)
+void GenerateBishopMoves(int pieces[], int square, int colorToMove, std::vector<Move> &pseudoLegalMoves)
 {
-    std::list<int> directions = {NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST};
+    std::vector<int> directions = {NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST};
     GenerateSlidingMoves(pieces, square, colorToMove, directions, pseudoLegalMoves);
 }
 
-void GenerateRookMoves(int pieces[], int square, int colorToMove, std::list<Move> &pseudoLegalMoves)
+void GenerateRookMoves(int pieces[], int square, int colorToMove, std::vector<Move> &pseudoLegalMoves)
 {
-    std::list<int> directions = {NORTH, EAST, SOUTH, WEST};
+    std::vector<int> directions = {NORTH, EAST, SOUTH, WEST};
     GenerateSlidingMoves(pieces, square, colorToMove, directions, pseudoLegalMoves);
 }
 
-void GenerateQueenMoves(int pieces[], int square, int colorToMove, std::list<Move> &pseudoLegalMoves)
+void GenerateQueenMoves(int pieces[], int square, int colorToMove, std::vector<Move> &pseudoLegalMoves)
 {
-    std::list<int> directions = {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
+    std::vector<int> directions = {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
     GenerateSlidingMoves(pieces, square, colorToMove, directions, pseudoLegalMoves);
 }
 
-void GenerateKingMoves(int pieces[], int square, int colorToMove, Board board, std::list<Move> &pseudoLegalMoves)
+void GenerateKingMoves(int pieces[], int square, int colorToMove, Board board, std::vector<Move> &pseudoLegalMoves)
 {
     int directions[8] = {-9, -8, -7, -1, 1, 7, 8, 9};
     int deltaRanks[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
@@ -233,7 +234,7 @@ void GenerateKingMoves(int pieces[], int square, int colorToMove, Board board, s
     }
 }
 
-void GenerateSlidingMoves(int pieces[], int square, int colorToMove, std::list<int> directions, std::list<Move> &pseudoLegalMoves)
+void GenerateSlidingMoves(int pieces[], int square, int colorToMove, std::vector<int> directions, std::vector<Move> &pseudoLegalMoves)
 {
     for (int direction : directions)
     {
@@ -304,7 +305,7 @@ int NumSquaresToEdge(int square, int direction)
     }
 }
 
-bool IsSquareAttacked(int square, std::list<Move> moves)
+bool IsSquareAttacked(int square, std::vector<Move> moves)
 {
     for (Move move : moves)
     {
@@ -316,7 +317,7 @@ bool IsSquareAttacked(int square, std::list<Move> moves)
     return false;
 }
 
-void AddPromotions(int from, int to, std::list<Move> &pseudoLegalMoves)
+void AddPromotions(int from, int to, std::vector<Move> &pseudoLegalMoves)
 {
     pseudoLegalMoves.push_back(Move(from, to, QUEEN_PROMOTION));
     pseudoLegalMoves.push_back(Move(from, to, ROOK_PROMOTION));
