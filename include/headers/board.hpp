@@ -37,10 +37,10 @@ public:
     // int GetPawnTwoSquareFile();
     void MovePiece(Move move);
 
-    const unsigned short whiteCastleKingsideMask = 0b0001;
-    const unsigned short whiteCastleQueensideMask = 0b0010;
-    const unsigned short blackCastleKingsideMask = 0b0100;
-    const unsigned short blackCastleQueensideMask = 0b1000;
+    unsigned short whiteCastleKingsideMask = 0b0001;
+    unsigned short whiteCastleQueensideMask = 0b0010;
+    unsigned short blackCastleKingsideMask = 0b0100;
+    unsigned short blackCastleQueensideMask = 0b1000;
 
     bool CanCastleKingside(int colorToMove);
     bool CanCastleQueenside(int colorToMove);

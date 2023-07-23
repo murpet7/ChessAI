@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
-#include <thread>
-#include "player.hpp"
-#include "moveGenerator.hpp"
+// #include <thread>
+#include "headers/player.hpp"
+#include "headers/moveGenerator.hpp"
+#include "headers/searchPositions.hpp"
 
 class ComputerPlayer : public Player
 {

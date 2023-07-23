@@ -2,16 +2,17 @@
 
 void ComputerPlayer::NotifyTurnToMove(Move move)
 {
-    board.MovePiece(move);
+    if (move.moveValue != 0)
+        board.MovePiece(move);
 
-    std::thread t(&ComputerPlayer::FindBestMove, this);
-    t.detach();
+    // std::thread t(&ComputerPlayer::FindBestMove, this);
+    // t.detach();
+    FindBestMove();
 }
 
 void ComputerPlayer::FindBestMove()
 {
-    std::vector<Move> legalMoves = GenerateAllLegalMoves(board, board.colorToMove, board.pawnTwoSquareFile);
-    chosenMove = legalMoves[rand() % legalMoves.size()];
+    chosenMove = GetBestMove(board, 3, board.colorToMove);
     board.MovePiece(chosenMove);
     isMoveChosen = true;
 }

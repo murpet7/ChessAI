@@ -10,6 +10,7 @@ void Game::Init()
 
     running = true;
     playerToMove = &whitePlayer;
+    playerToMove->NotifyTurnToMove(Move());
 
     while (running)
     {
