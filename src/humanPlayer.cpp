@@ -6,7 +6,7 @@ int HumanPlayer::GetTileFromMouse(int mouseX, int mouseY)
         return -1;
     int tileX = (mouseX - BOARD_X) / TILE_SIZE;
     int tileY = (mouseY - BOARD_Y) / TILE_SIZE;
-    return SquareIndex(tileX, tileY);
+    return Square(tileX, tileY);
 }
 
 void HumanPlayer::PickupPiece(int mouseX, int mouseY)
@@ -22,7 +22,7 @@ void HumanPlayer::DropPiece(int mouseX, int mouseY)
     if (heldPiece == NONE)
         return;
     int newSquare = GetTileFromMouse(mouseX, mouseY);
-    Move move = MoveGenerator::ToMove(board, heldPieceIndex, newSquare, heldPiece);
+    Move move = MoveGenerator::MovesquaresToMove(board, heldPieceIndex, newSquare, heldPiece);
     if (newSquare != -1 && move.moveValue != 0)
     {
         board.MovePiece(move);

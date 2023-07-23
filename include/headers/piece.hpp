@@ -14,6 +14,7 @@
 #define Piece int
 #define Color int
 
-bool IsOpposingColor(int piece1, int piece2);
-int GetPieceColor(int piece);
-bool PieceIsColor(int piece, int color);
+bool IsOpposingColor(Piece piece1, Piece piece2);
+Color GetPieceColor(Piece piece);
+Piece GetPieceType(Piece piece);
+bool PieceIsColor(Piece piece, Color color);

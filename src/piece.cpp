@@ -12,6 +12,11 @@ Color GetPieceColor(Piece piece)
     return piece & 24;
 }
 
+Piece GetPieceType(Piece piece)
+{
+    return piece & 7;
+}
+
 bool PieceIsColor(Piece piece1, Piece piece2)
 {
     if (GetPieceColor(piece1) != GetPieceColor(piece2))

@@ -1,23 +1,23 @@
 #include "headers/boardRepresentation.hpp"
 
-int RankIndex(int squareIndex)
+int Rank(int squareIndex)
 {
     return squareIndex >> 3;
 }
 
-int FileIndex(int squareIndex)
+int File(int squareIndex)
 {
     return squareIndex & 7;
 }
 
-int SquareIndex(int fileIndex, int rankIndex)
+int Square(int fileIndex, int rankIndex)
 {
     return rankIndex * 8 + fileIndex;
 }
 
 std::string SquareName(int squareIndex)
 {
-    return SquareName(RankIndex(squareIndex), FileIndex(squareIndex));
+    return SquareName(Rank(squareIndex), File(squareIndex));
 }
 
 std::string SquareName(int rankIndex, int fileIndex)

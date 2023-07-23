@@ -29,19 +29,19 @@ void Board::MovePiece(Move move)
 
     int flag = move.GetFlag();
     if (flag == PAWN_TWO_SQUARES)
-        pawnTwoSquareFile = FileIndex(to);
+        pawnTwoSquareFile = File(to);
     else
         pawnTwoSquareFile = -2;
 
     if (flag == EN_PASSANT)
     {
-        int captureSquare = SquareIndex(FileIndex(to), RankIndex(from));
+        int captureSquare = Square(File(to), Rank(from));
         pieces[captureSquare] = NONE;
     }
 
     if (flag == CASTLE)
     {
-        if (FileIndex(to) == 2)
+        if (File(to) == 2)
         {
             Castle(to - 2, to + 1);
         }
@@ -91,11 +91,11 @@ void Board::CheckCastleRights(int pieceType, int square)
     }
     if (pieceType == (ROOK | colorToMove))
     {
-        if (FileIndex(square) == 0)
+        if (File(square) == 0)
         {
             RemoveQueensideCastle(colorToMove);
         }
-        else if (FileIndex(square) == 7)
+        else if (File(square) == 7)
         {
             RemoveKingsideCastle(colorToMove);
         }
@@ -137,7 +137,7 @@ void Board::PiecesFromFEN(std::string FEN)
         }
         else
         {
-            int squareIndex = SquareIndex(file, rank);
+            int squareIndex = Square(file, rank);
             int pieceType = PieceTypeFromChar(FEN[i]);
             std::vector<int> &indices = pieceSquaresOfType[pieceType];
             indices.push_back(squareIndex);

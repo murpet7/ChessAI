@@ -89,10 +89,10 @@ void Renderer::RenderPieces(Board board, int heldPieceSquare, int heldPiece)
     {
         for (int x = 0; x < COLUMN_SIZE; x++)
         {
-            if (SquareIndex(x, y) == heldPieceSquare && heldPiece != NONE)
+            if (Square(x, y) == heldPieceSquare && heldPiece != NONE)
                 continue;
             SDL_Rect rect = {x * TILE_SIZE + BOARD_X, y * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};
-            SDL_Texture *texture = pieceTextures[board.pieces[SquareIndex(x, y)]];
+            SDL_Texture *texture = pieceTextures[board.pieces[Square(x, y)]];
             SDL_RenderCopy(SDLRenderer, texture, NULL, &rect);
         }
     }
@@ -116,7 +116,7 @@ void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare,
     std::vector<Move> legalMoves = MoveGenerator::GenerateMovesForPiece(board, heldPieceSquare, heldPiece);
     for (Move move : legalMoves)
     {
-        SDL_Rect rect = {FileIndex(move.GetTo()) * TILE_SIZE + BOARD_X, RankIndex(move.GetTo()) * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};
+        SDL_Rect rect = {File(move.GetTo()) * TILE_SIZE + BOARD_X, Rank(move.GetTo()) * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};
         SDL_SetRenderDrawColor(SDLRenderer, 0, 255, 0, 255);
         SDL_RenderFillRect(SDLRenderer, &rect);
     }
