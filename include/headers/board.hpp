@@ -16,6 +16,11 @@
 #define ROW_SIZE 8
 #define COLUMN_SIZE 8
 
+#define WHITE_CASTLE_KINGSIDE_MASK 0b0001
+#define WHITE_CASTLE_QUEENSIDE_MASK 0b0010
+#define BLACK_CASTLE_KINGSIDE_MASK 0b0100
+#define BLACK_CASTLE_QUEENSIDE_MASK 0b1000
+
 class Board
 {
 public:
@@ -37,13 +42,8 @@ public:
     // int GetPawnTwoSquareFile();
     void MovePiece(Move move);
 
-    unsigned short whiteCastleKingsideMask = 0b0001;
-    unsigned short whiteCastleQueensideMask = 0b0010;
-    unsigned short blackCastleKingsideMask = 0b0100;
-    unsigned short blackCastleQueensideMask = 0b1000;
-
-    bool CanCastleKingside(int colorToMove);
-    bool CanCastleQueenside(int colorToMove);
+    static bool CanCastleKingside(int colorToMove, int castleMask);
+    static bool CanCastleQueenside(int colorToMove, int castleMask);
     void RemoveKingsideCastle(int colorToMove);
     void RemoveQueensideCastle(int colorToMove);
 

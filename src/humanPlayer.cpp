@@ -22,7 +22,7 @@ void HumanPlayer::DropPiece(int mouseX, int mouseY)
     if (heldPiece == NONE)
         return;
     int newSquare = GetTileFromMouse(mouseX, mouseY);
-    Move move = ToMove(heldPieceIndex, newSquare, board.colorToMove, board.pieces, heldPiece, board.pawnTwoSquareFile, board);
+    Move move = MoveGenerator::ToMove(board, heldPieceIndex, newSquare, heldPiece);
     if (newSquare != -1 && move.moveValue != 0)
     {
         board.MovePiece(move);

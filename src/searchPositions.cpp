@@ -2,15 +2,13 @@
 
 std::tuple<int, Move> Minimax(Board board, int depth, int maximizingPlayer)
 {
-    // MAAK HIER MINMAX VAN JIJ IDIOOT
-    // printf("Minimax called %p\n", depth);
     std::vector<std::tuple<int, Move>> gameStates;
     if (depth == 0)
     {
         return std::make_tuple(EvaluatePosition(board, board.colorToMove), Move());
     }
 
-    std::vector<Move> moves = GenerateAllLegalMoves(board, board.colorToMove, board.pawnTwoSquareFile);
+    std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
     std::vector<std::tuple<int, Move>> newGameStates;
     for (Move move : moves)
     {

@@ -1,22 +1,18 @@
 #include "headers/piece.hpp"
 
-bool IsOpposingColor(int piece1, int piece2)
+bool IsOpposingColor(Piece piece1, Piece piece2)
 {
     if (GetPieceColor(piece1) != GetPieceColor(piece2))
         return true;
     return false;
 }
 
-int GetPieceColor(int piece)
+Color GetPieceColor(Piece piece)
 {
-    if (piece == NONE)
-        return NONE;
-    if (piece & WHITE)
-        return WHITE;
-    return BLACK;
+    return piece & 24;
 }
 
-bool PieceIsColor(int piece1, int piece2)
+bool PieceIsColor(Piece piece1, Piece piece2)
 {
     if (GetPieceColor(piece1) != GetPieceColor(piece2))
         return true;

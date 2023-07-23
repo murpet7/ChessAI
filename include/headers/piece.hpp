@@ -11,7 +11,8 @@
 #define WHITE 8
 #define BLACK 16
 
-#define Piece int8_t
+#define Piece int
+#define Color int
 
 bool IsOpposingColor(int piece1, int piece2);
 int GetPieceColor(int piece);
