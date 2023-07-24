@@ -18,3 +18,5 @@ bool IsOpposingColor(Piece piece1, Piece piece2);
 Color GetPieceColor(Piece piece);
 Piece GetPieceType(Piece piece);
 bool PieceIsColor(Piece piece, Color color);
+bool IsMinorPiece(Piece piece);
+bool IsMajorPiece(Piece piece);

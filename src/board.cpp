@@ -223,3 +223,8 @@ void Board::RemoveQueensideCastle(int colorToMove)
     else
         castleMask &= ~BLACK_CASTLE_QUEENSIDE_MASK;
 }
+
+int Board::GetKingSquare(int color)
+{
+    return pieceSquaresOfType[KING | color].front();
+}

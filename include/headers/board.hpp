@@ -47,6 +47,8 @@ public:
     void RemoveKingsideCastle(int colorToMove);
     void RemoveQueensideCastle(int colorToMove);
 
+    int GetKingSquare(int color);
+
 private:
     // bool IsOutOfBounds(int x, int y);
     // void ReturnHeldPiece();

@@ -23,3 +23,17 @@ bool PieceIsColor(Piece piece1, Piece piece2)
         return true;
     return false;
 }
+
+bool IsMinorPiece(Piece piece)
+{
+    if (GetPieceType(piece) == BISHOP || GetPieceType(piece) == KNIGHT)
+        return true;
+    return false;
+}
+
+bool IsMajorPiece(Piece piece)
+{
+    if (GetPieceType(piece) == ROOK || GetPieceType(piece) == QUEEN)
+        return true;
+    return false;
+}
