@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "headers/board.hpp"
+#include "headers/gameEnd.hpp"
 
 #define PAWN_VALUE 1
 #define KNIGHT_VALUE 3

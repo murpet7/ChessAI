@@ -2,6 +2,16 @@
 
 float EvaluatePosition(Board board, int colorToMove)
 {
+    int gameEndState = GetGameEndState(board);
+    if (gameEndState == CHECKMATE)
+    {
+        return -1000000;
+    }
+    if (gameEndState == DRAW)
+    {
+        return 0;
+    }
+
     int otherColor = colorToMove == WHITE ? BLACK : WHITE;
     int numGoodPawns = board.pieceSquaresOfType[PAWN | colorToMove].size();
     int numBadPawns = board.pieceSquaresOfType[PAWN | otherColor].size();

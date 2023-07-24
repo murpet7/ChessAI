@@ -4,11 +4,8 @@
 #include "headers/moveGenerator.hpp"
 
 #define NOTHING 0
-#define CHECKMATE 1
-#define STALEMATE 2
-#define THREEFOLD_REPETITION 3
-#define FIFTY_MOVE_RULE 4
-#define INSUFFICIENT_MATERIAL 5
+#define DRAW 1
+#define CHECKMATE 2
 
 int GetGameEndState(Board board);
 int GetCheckmateOrStalemate(Board board);
