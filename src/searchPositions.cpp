@@ -3,7 +3,7 @@
 float Minimax(Board board, int depth, float alpha, float beta, int maximizingPlayer)
 {
     if (depth == 0)
-        return EvaluatePosition(board, board.colorToMove);
+        return Evaluator::EvaluatePosition(board, board.colorToMove);
 
     std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
     if (board.colorToMove == maximizingPlayer)
@@ -47,7 +47,7 @@ Move GetBestMove(Board board, int depth, int originalColorToMove)
     {
         Board newBoard = board;
         newBoard.MakeMove(move);
-        float eval = Minimax(newBoard, depth, -INFINITY, INFINITY, originalColorToMove);
+        float eval = Minimax(newBoard, depth - 1, -INFINITY, INFINITY, originalColorToMove);
         if (eval > maxEval)
         {
             maxEval = eval;

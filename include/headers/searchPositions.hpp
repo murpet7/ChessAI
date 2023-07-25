@@ -5,6 +5,6 @@
 #include <bits/stdc++.h>
 #include "headers/board.hpp"
 #include "headers/moveGenerator.hpp"
-#include "headers/evaluatePosition.hpp"
+#include "headers/evaluator.hpp"
 float Minimax(Board board, int depth, float alpha, float beta, int maximizingPlayer);
 Move GetBestMove(Board board, int depth, int originalColorToMove);
