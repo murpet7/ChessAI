@@ -1,6 +1,6 @@
 #include "headers/gameEnd.hpp"
 
-int GetGameEndState(Board board)
+int GetGameEndState(Board &board)
 {
     int checkOrStaleMate = GetCheckmateOrStalemate(board);
     if (checkOrStaleMate != NOTHING)
@@ -22,9 +22,9 @@ int GetGameEndState(Board board)
     return NOTHING;
 }
 
-int GetCheckmateOrStalemate(Board board)
+int GetCheckmateOrStalemate(Board &board)
 {
-    std::vector<Move> opponentMoves = MoveGenerator::GenerateAllPseudoLegalMoves(board.pieceSquaresOfType, board.pieces, board.colorToMove, board.pawnTwoSquareFile, board.castleMask);
+    std::vector<Move> opponentMoves = MoveGenerator::GenerateAllPseudoLegalMoves(board);
     // int kingSquare = board.GetKingSquare(board.colorToMove);
     //
     // for (int y = -1; y <= 1; y++)
@@ -50,17 +50,17 @@ int GetCheckmateOrStalemate(Board board)
     return false;
 }
 
-bool IsThreefoldRepetition(Board board)
+bool IsThreefoldRepetition(Board &board)
 {
     return false;
 }
 
-bool IsFiftyMoveRule(Board board)
+bool IsFiftyMoveRule(Board &board)
 {
     return false;
 }
 
-bool IsInsufficientMaterial(Board board)
+bool IsInsufficientMaterial(Board &board)
 {
     // if (board.pieceSquaresOfType[PAWN | WHITE].size() > 0 || board.pieceSquaresOfType[PAWN | BLACK].size() > 0)
     // {
