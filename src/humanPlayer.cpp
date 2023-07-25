@@ -25,7 +25,7 @@ void HumanPlayer::DropPiece(int mouseX, int mouseY)
     Move move = MoveGenerator::MovesquaresToMove(board, heldPieceIndex, newSquare, heldPiece);
     if (newSquare != -1 && move.moveValue != 0)
     {
-        board.MovePiece(move);
+        board.MakeMove(move);
         chosenMove = move;
         isMoveChosen = true;
     }

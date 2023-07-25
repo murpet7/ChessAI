@@ -1,42 +1,58 @@
 #include "headers/searchPositions.hpp"
 
-std::tuple<int, Move> Minimax(Board board, int depth, int maximizingPlayer)
+float Minimax(Board board, int depth, float alpha, float beta, int maximizingPlayer)
 {
-    std::vector<std::tuple<int, Move>> gameStates;
     if (depth == 0)
-    {
-        return std::make_tuple(EvaluatePosition(board, board.colorToMove), Move());
-    }
+        return EvaluatePosition(board, board.colorToMove);
 
     std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
-    std::vector<std::tuple<int, Move>> newGameStates;
-    for (Move move : moves)
-    {
-        Board newBoard = board;
-        newBoard.MovePiece(move);
-        std::tuple<int, Move> newGameState = std::make_tuple(std::get<0>(Minimax(newBoard, depth - 1, maximizingPlayer)), move);
-        gameStates.push_back(newGameState);
-    }
-    if (gameStates.size() == 0)
-    {
-        return std::make_tuple(EvaluatePosition(board, board.colorToMove), Move());
-    }
     if (board.colorToMove == maximizingPlayer)
     {
-        std::sort(gameStates.begin(), gameStates.end(), [](const std::tuple<int, Move> &a, const std::tuple<int, Move> &b)
-                  { return std::get<0>(a) < std::get<0>(b); });
-        return gameStates[0];
+        float maxEval = -INFINITY;
+        for (Move move : moves)
+        {
+            Board newBoard = board;
+            newBoard.MakeMove(move);
+            float eval = Minimax(newBoard, depth - 1, alpha, beta, maximizingPlayer);
+            maxEval = std::max(maxEval, eval);
+            alpha = std::max(alpha, eval);
+            if (beta <= alpha)
+                break;
+        }
+        return maxEval;
     }
     else
     {
-        std::sort(gameStates.begin(), gameStates.end(), [](const std::tuple<int, Move> &a, const std::tuple<int, Move> &b)
-                  { return std::get<0>(a) > std::get<0>(b); });
-        return gameStates[0];
+        float minEval = INFINITY;
+        for (Move move : moves)
+        {
+            Board newBoard = board;
+            newBoard.MakeMove(move);
+            float eval = Minimax(newBoard, depth - 1, alpha, beta, maximizingPlayer);
+            minEval = std::min(minEval, eval);
+            beta = std::min(beta, eval);
+            if (beta <= alpha)
+                break;
+        }
+        return minEval;
     }
 }
 
 Move GetBestMove(Board board, int depth, int originalColorToMove)
 {
-    std::tuple<int, Move> gameStates = Minimax(board, depth, originalColorToMove);
-    return std::get<1>(gameStates);
+    std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
+    float maxEval = -INFINITY;
+    Move bestMove;
+    for (Move move : moves)
+    {
+        Board newBoard = board;
+        newBoard.MakeMove(move);
+        float eval = Minimax(newBoard, depth, -INFINITY, INFINITY, originalColorToMove);
+        if (eval > maxEval)
+        {
+            maxEval = eval;
+            bestMove = move;
+        }
+    }
+    return bestMove;
 }

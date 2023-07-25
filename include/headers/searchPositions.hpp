@@ -6,6 +6,5 @@
 #include "headers/board.hpp"
 #include "headers/moveGenerator.hpp"
 #include "headers/evaluatePosition.hpp"
-
-std::tuple<int, Move> Minimax(Board board, int depth, int maximizingPlayer);
+float Minimax(Board board, int depth, float alpha, float beta, int maximizingPlayer);
 Move GetBestMove(Board board, int depth, int originalColorToMove);

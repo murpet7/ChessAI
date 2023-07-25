@@ -29,7 +29,7 @@ void Game::Update()
 
 void Game::SwitchTurn(Move move)
 {
-    board.MovePiece(move);
+    board.MakeMove(move);
     if (playerToMove == &whitePlayer)
         playerToMove = &blackPlayer;
     else

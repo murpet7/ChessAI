@@ -40,7 +40,7 @@ public:
     // int GetHeldPieceIndex();
     // int GetPlayerToMove();
     // int GetPawnTwoSquareFile();
-    void MovePiece(Move move);
+    void MakeMove(Move move);
 
     static bool CanCastleKingside(int colorToMove, int castleMask);
     static bool CanCastleQueenside(int colorToMove, int castleMask);

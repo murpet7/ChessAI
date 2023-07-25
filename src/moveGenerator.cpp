@@ -80,7 +80,7 @@ std::vector<Move> MoveGenerator::FilterOnCheck(Board board, std::vector<Move> ps
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
         Board newBoard = board;
-        newBoard.MovePiece(pseudoLegalMove);
+        newBoard.MakeMove(pseudoLegalMove);
         int kingSquare = newBoard.pieceSquaresOfType[KING | board.colorToMove].front();
         std::vector<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(newBoard.pieceSquaresOfType, newBoard.pieces, otherPlayer, newBoard.pawnTwoSquareFile, newBoard.castleMask);
 

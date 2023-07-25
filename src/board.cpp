@@ -6,7 +6,7 @@ Board::Board()
     PiecesFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 }
 
-void Board::MovePiece(Move move)
+void Board::MakeMove(Move move)
 {
     int to = move.GetTo();
     int from = move.GetFrom();

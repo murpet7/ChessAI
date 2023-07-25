@@ -3,7 +3,7 @@
 void Player::NotifyTurnToMove(Move move)
 {
     if (move.moveValue != 0)
-        board.MovePiece(move);
+        board.MakeMove(move);
 }
 
 Move Player::GetChosenMove()

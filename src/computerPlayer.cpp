@@ -4,7 +4,7 @@
 void ComputerPlayer::NotifyTurnToMove(Move move)
 {
     if (move.moveValue != 0)
-        board.MovePiece(move);
+        board.MakeMove(move);
 
     // std::thread t(&ComputerPlayer::FindBestMove, this);
     // t.detach();
@@ -23,6 +23,6 @@ void ComputerPlayer::FindBestMove()
               << "Wall clock time passed: "
               << std::chrono::duration<double, std::milli>(t_end - t_start).count()
               << " ms\n";
-    board.MovePiece(chosenMove);
+    board.MakeMove(chosenMove);
     isMoveChosen = true;
 }
