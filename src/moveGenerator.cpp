@@ -270,7 +270,7 @@ bool MoveGenerator::IsKingOutOfBounds(int oldSquare, int newSquare)
 {
     if (newSquare < 0 || newSquare > 63)
         return true;
-    return abs(Rank(oldSquare) - Rank(newSquare)) != 1 && abs(File(oldSquare) - File(newSquare)) != 1;
+    return abs(Rank(oldSquare) - Rank(newSquare)) != 1 || abs(File(oldSquare) - File(newSquare)) != 1;
 }
 
 bool MoveGenerator::IsCapturableSquare(Board &board, int square)
