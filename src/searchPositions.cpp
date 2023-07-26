@@ -1,6 +1,6 @@
 #include "headers/searchPositions.hpp"
 
-float Minimax(Board board, int depth, float alpha, float beta, int maximizingPlayer)
+float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta, int maximizingPlayer)
 {
     if (depth == 0)
         return Evaluator::EvaluatePosition(board, board.colorToMove);
@@ -38,7 +38,7 @@ float Minimax(Board board, int depth, float alpha, float beta, int maximizingPla
     }
 }
 
-Move GetBestMove(Board board, int depth, int originalColorToMove)
+Move PositionSearcher::GetBestMove(Board &board, int depth, int originalColorToMove)
 {
     std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
     float maxEval = -INFINITY;

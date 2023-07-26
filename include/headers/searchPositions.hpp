@@ -11,8 +11,8 @@
 class PositionSearcher
 {
 public:
-    static Move GetBestMove(Board board, int depth, int originalColorToMove);
+    static Move GetBestMove(Board &board, int depth, int originalColorToMove);
 
 private:
-    static float Minimax(Board board, int depth, float alpha, float beta, int maximizingPlayer);
+    static float Minimax(Board &board, int depth, float alpha, float beta, int maximizingPlayer);
 };
