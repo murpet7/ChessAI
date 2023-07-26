@@ -6,6 +6,11 @@ Board::Board()
     PiecesFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 }
 
+Board::Board(std::string FEN)
+{
+    PiecesFromFEN(FEN);
+}
+
 void Board::MakeMove(Move move)
 {
     int to = move.GetTo();

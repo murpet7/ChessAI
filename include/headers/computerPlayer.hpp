@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-// #include <thread>
 #include "headers/player.hpp"
 #include "headers/moveGenerator.hpp"
 #include "headers/searchPositions.hpp"

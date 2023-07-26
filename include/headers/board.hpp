@@ -32,6 +32,7 @@ public:
     std::map<int, SDL_Texture *> pieceTextures;
     std::map<int, std::vector<int>> pieceSquaresOfType;
     Board();
+    Board(std::string FEN);
     void PiecesFromFEN(std::string FEN);
 
     // void PickupPiece(int x, int y);
