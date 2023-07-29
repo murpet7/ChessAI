@@ -47,11 +47,11 @@ void Renderer::LoadPieceTextures()
     pieceTextures[BLACK | KING] = bKing;
 }
 
-void Renderer::Update(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile)
+void Renderer::Update(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int enPassantFile)
 {
     RenderBackground();
     RenderBoard();
-    RenderLegalMoves(board, heldPiece, heldPieceSquare, colorToMove, pawnTwoSquareFile);
+    RenderLegalMoves(board, heldPiece, heldPieceSquare, colorToMove, enPassantFile);
     RenderPieces(board, heldPieceSquare, heldPiece);
     RenderDraggedPiece(heldPiece);
     SDL_RenderPresent(SDLRenderer);
@@ -92,7 +92,7 @@ void Renderer::RenderPieces(Board board, int heldPieceSquare, int heldPiece)
             if (Square(x, y) == heldPieceSquare && heldPiece != NONE)
                 continue;
             SDL_Rect rect = {x * TILE_SIZE + BOARD_X, y * TILE_SIZE + BOARD_Y, TILE_SIZE, TILE_SIZE};
-            SDL_Texture *texture = pieceTextures[board.pieces[Square(x, y)]];
+            SDL_Texture *texture = pieceTextures[board.GetPieces()[Square(x, y)]];
             SDL_RenderCopy(SDLRenderer, texture, NULL, &rect);
         }
     }
@@ -109,7 +109,7 @@ void Renderer::RenderDraggedPiece(int heldPiece)
     SDL_RenderCopy(SDLRenderer, texture, NULL, &rect);
 }
 
-void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile)
+void Renderer::RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int enPassantFile)
 {
     if (heldPiece == NONE)
         return;

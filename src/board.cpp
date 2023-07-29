@@ -1,108 +1,178 @@
 #include "headers/board.hpp"
 #include "headers/moveGenerator.hpp"
+#include "headers/FENManager.hpp"
 
 Board::Board()
 {
-    PiecesFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    FENManager::PiecesFromFEN(*this, STARTING_FEN);
+    gameStateHistory.push(STARTING_GAME_STATE);
 }
 
 Board::Board(std::string FEN)
 {
-    PiecesFromFEN(FEN);
+    FENManager::PiecesFromFEN(*this, FEN);
+    gameStateHistory.push(STARTING_GAME_STATE);
 }
 
-void Board::MakeMove(Move move)
+void Board::MakeMove(Move &move)
 {
     int to = move.GetTo();
     int from = move.GetFrom();
-
     int pieceType = pieces[from];
-    int colorToMove = GetPieceColor(pieceType);
-    CheckCastleRights(pieceType, from);
+    unsigned short gameState = gameStateHistory.top();
 
-    int capturedPiece = pieces[to];
-    if (capturedPiece != NONE)
+    UpdateCapturedPiece(gameState, NONE);
+    UpdateEnPassantFile(gameState, 15); // 15 is an invalid file
+
+    RemoveCastleRights(gameState, pieceType, from);
+
+    int capturedPieceType = pieces[to];
+    if (capturedPieceType != NONE)
     {
-        std::vector<int> &indices = pieceSquaresOfType[capturedPiece];
-        indices.erase(std::remove(indices.begin(), indices.end(), to), indices.end());
+        RemovePiece(capturedPieceType, to);
+        UpdateCapturedPiece(gameState, capturedPieceType);
     }
-    std::vector<int> &indices = pieceSquaresOfType[pieceType];
-    pieces[from] = NONE;
-    indices.erase(std::remove(indices.begin(), indices.end(), from), indices.end());
-    pieces[to] = pieceType;
-    indices.push_back(to);
+    MovePiece(pieceType, from, to);
 
     int flag = move.GetFlag();
-    if (flag == PAWN_TWO_SQUARES)
-        pawnTwoSquareFile = File(to);
-    else
-        pawnTwoSquareFile = -2;
-
-    if (flag == EN_PASSANT)
+    switch (flag)
     {
-        int captureSquare = Square(File(to), Rank(from));
-        pieces[captureSquare] = NONE;
-    }
-
-    if (flag == CASTLE)
-    {
-        if (File(to) == 2)
-        {
-            Castle(to - 2, to + 1);
-        }
-        else
-        {
-            Castle(to + 1, to - 1);
-        }
-    }
-
-    if (flag == QUEEN_PROMOTION)
-    {
+    case PAWN_TWO_SQUARES:
+        UpdateEnPassantFile(gameState, File(to));
+        break;
+    case EN_PASSANT:
+        RemovePiece(capturedPieceType, Square(File(to), Rank(from)));
+        break;
+    case CASTLE:
+        Castle(to);
+        break;
+    case QUEEN_PROMOTION:
         Promote(QUEEN, to);
-    }
-    else if (flag == ROOK_PROMOTION)
-    {
+        break;
+    case ROOK_PROMOTION:
         Promote(ROOK, to);
-    }
-    else if (flag == BISHOP_PROMOTION)
-    {
+        break;
+    case BISHOP_PROMOTION:
         Promote(BISHOP, to);
-    }
-    else if (flag == KNIGHT_PROMOTION)
-    {
+        break;
+    case KNIGHT_PROMOTION:
         Promote(KNIGHT, to);
+        break;
     }
-    FinishTurn();
+    gameStateHistory.push(gameState);
+    ChangeColorToMove();
 }
 
-void Board::Castle(int oldRookPos, int newRookPos)
+void Board::UndoMove(Move &move)
 {
-    int pieceType = ROOK | colorToMove;
+    int to = move.GetTo();
+    int from = move.GetFrom();
+    int pieceType = pieces[to];
 
-    pieces[oldRookPos] = NONE;
-    std::vector<int> &indices = pieceSquaresOfType[pieceType];
-    indices.erase(std::remove(indices.begin(), indices.end(), oldRookPos), indices.end());
-
-    pieces[newRookPos] = pieceType;
-    indices.push_back(newRookPos);
-}
-
-void Board::CheckCastleRights(int pieceType, int square)
-{
-    if (pieceType == (KING | colorToMove))
+    int capturedPieceType = GetCapturedPiece();
+    MovePiece(pieceType, to, from);
+    if (capturedPieceType != NONE)
     {
-        RemoveKingsideCastle(colorToMove);
-        RemoveQueensideCastle(colorToMove);
+        AddPiece(capturedPieceType, to);
     }
-    if (pieceType == (ROOK | colorToMove))
+
+    int flag = move.GetFlag();
+    switch (flag)
+    {
+    case PAWN_TWO_SQUARES:
+        break;
+    case EN_PASSANT:
+        AddPiece(PAWN, Square(File(to), Rank(from)));
+        break;
+    case CASTLE:
+        UndoCastle(to);
+        break;
+    case QUEEN_PROMOTION:
+        RemovePiece(QUEEN | colorToMove, to);
+        AddPiece(PAWN | colorToMove, from);
+        break;
+    case ROOK_PROMOTION:
+        RemovePiece(ROOK | colorToMove, to);
+        AddPiece(PAWN | colorToMove, from);
+        break;
+    case BISHOP_PROMOTION:
+        RemovePiece(BISHOP | colorToMove, to);
+        AddPiece(PAWN | colorToMove, from);
+        break;
+    case KNIGHT_PROMOTION:
+        RemovePiece(KNIGHT | colorToMove, to);
+        AddPiece(PAWN | colorToMove, from);
+        break;
+    }
+    gameStateHistory.pop();
+    ChangeColorToMove();
+}
+
+void Board::MovePiece(int piece, int oldSquare, int newSquare)
+{
+    pieces[oldSquare] = NONE;
+    pieces[newSquare] = piece;
+    std::vector<int> &indices = pieceSquaresTable[piece];
+    indices.erase(std::remove(indices.begin(), indices.end(), oldSquare), indices.end());
+    indices.push_back(newSquare);
+}
+
+void Board::AddPiece(int piece, int square)
+{
+    pieces[square] = piece;
+    std::vector<int> &indices = pieceSquaresTable[piece];
+    indices.push_back(square);
+}
+
+void Board::RemovePiece(int piece, int square)
+{
+    pieces[square] = NONE;
+    std::vector<int> &indices = pieceSquaresTable[piece];
+    indices.erase(std::remove(indices.begin(), indices.end(), square), indices.end());
+}
+
+void Board::Castle(int to)
+{
+    int rank = Rank(to);
+    if (File(to) == 6)
+    {
+        MovePiece(ROOK | colorToMove, Square(7, rank), Square(5, rank));
+    }
+    else
+    {
+        MovePiece(ROOK | colorToMove, Square(0, rank), Square(3, rank));
+    }
+}
+
+void Board::UndoCastle(int to)
+{
+    int rank = Rank(to);
+    if (File(to) == 6)
+    {
+        MovePiece(ROOK | OppositeColor(colorToMove), Square(5, rank), Square(7, rank));
+    }
+    else
+    {
+        MovePiece(ROOK | OppositeColor(colorToMove), Square(3, rank), Square(0, rank));
+    }
+}
+
+void Board::RemoveCastleRights(unsigned short &gameState, int piece, int square)
+{
+    if (piece == (KING | colorToMove))
+    {
+        RemoveKingsideCastle(gameState);
+        RemoveQueensideCastle(gameState);
+    }
+    if (piece == (ROOK | colorToMove))
     {
         if (File(square) == 0)
         {
-            RemoveQueensideCastle(colorToMove);
+            RemoveQueensideCastle(gameState);
         }
         else if (File(square) == 7)
         {
-            RemoveKingsideCastle(colorToMove);
+            RemoveKingsideCastle(gameState);
         }
     }
 }
@@ -110,13 +180,13 @@ void Board::CheckCastleRights(int pieceType, int square)
 void Board::Promote(int promotionType, int square)
 {
     pieces[square] = promotionType | colorToMove;
-    std::vector<int> &pawnIndices = pieceSquaresOfType[PAWN | colorToMove];
-    std::vector<int> &promotionIndices = pieceSquaresOfType[promotionType | colorToMove];
+    std::vector<int> &pawnIndices = pieceSquaresTable[PAWN | colorToMove];
+    std::vector<int> &promotionIndices = pieceSquaresTable[promotionType | colorToMove];
     pawnIndices.erase(std::remove(pawnIndices.begin(), pawnIndices.end(), square), pawnIndices.end());
     promotionIndices.push_back(square);
 }
 
-void Board::FinishTurn()
+void Board::ChangeColorToMove()
 {
     if (colorToMove == WHITE)
         colorToMove = BLACK;
@@ -124,112 +194,82 @@ void Board::FinishTurn()
         colorToMove = WHITE;
 }
 
-void Board::PiecesFromFEN(std::string FEN)
+void Board::UpdateEnPassantFile(unsigned short &gameState, int file)
 {
-    int file = 0;
-    int rank = 0;
-    for (int i = 0; i < FEN.length(); i++)
+    gameState &= ~EN_PASSANT_FILE_MASK;
+    gameState |= file << 4;
+}
+
+int Board::GetEnPassantFile()
+{
+    return (gameStateHistory.top() & EN_PASSANT_FILE_MASK) >> 4;
+}
+
+void Board::UpdateCapturedPiece(unsigned short &gameState, int pieceType)
+{
+    gameState &= ~CAPTURED_PIECE_MASK;
+    gameState |= pieceType << 8;
+}
+
+int Board::GetCapturedPiece()
+{
+    return (gameStateHistory.top() & CAPTURED_PIECE_MASK) >> 8;
+}
+
+int *Board::GetPieces()
+{
+    return pieces;
+}
+
+std::vector<int> Board::GetPieceSquares(int piece)
+{
+    return pieceSquaresTable[piece];
+}
+
+int Board::GetColorToMove()
+{
+    return colorToMove;
+}
+
+bool Board::CanCastleKingside()
+{
+    if (colorToMove == WHITE)
+        return gameStateHistory.top() & WHITE_CASTLE_KINGSIDE_MASK;
+    else
+        return gameStateHistory.top() & BLACK_CASTLE_KINGSIDE_MASK;
+}
+
+bool Board::CanCastleQueenside()
+{
+    if (colorToMove == WHITE)
+        return gameStateHistory.top() & WHITE_CASTLE_QUEENSIDE_MASK;
+    else
+        return gameStateHistory.top() & BLACK_CASTLE_QUEENSIDE_MASK;
+}
+
+void Board::RemoveKingsideCastle(unsigned short &gameState)
+{
+    if (colorToMove == WHITE)
+        gameState &= ~WHITE_CASTLE_KINGSIDE_MASK;
+    else
+        gameState &= ~BLACK_CASTLE_KINGSIDE_MASK;
+}
+
+void Board::RemoveQueensideCastle(unsigned short &gameState)
+{
+    if (colorToMove == WHITE)
+        gameState &= ~WHITE_CASTLE_QUEENSIDE_MASK;
+    else
+        gameState &= ~BLACK_CASTLE_QUEENSIDE_MASK;
+}
+
+int Board::GetKingSquare(int kingColor)
+{
+    std::vector<int> &pieceSquares = pieceSquaresTable[KING | kingColor];
+    if (pieceSquares.size() == 0)
     {
-        if (FEN[i] == '/')
-        {
-            file = 0;
-            rank++;
-            continue;
-        }
-        if (FEN[i] >= '1' && FEN[i] <= '8')
-        {
-            file += FEN[i] - '0';
-        }
-        else
-        {
-            int squareIndex = Square(file, rank);
-            int pieceType = PieceTypeFromChar(FEN[i]);
-            std::vector<int> &indices = pieceSquaresOfType[pieceType];
-            indices.push_back(squareIndex);
-            pieces[squareIndex] = pieceType;
-            file++;
-        }
+        printf("No king found\n");
+        return -1;
     }
-}
-
-int Board::PieceTypeFromChar(char c)
-{
-    int pieceType = NONE;
-    switch (c)
-    {
-    case 'p':
-        pieceType = BLACK | PAWN;
-        break;
-    case 'n':
-        pieceType = BLACK | KNIGHT;
-        break;
-    case 'b':
-        pieceType = BLACK | BISHOP;
-        break;
-    case 'r':
-        pieceType = BLACK | ROOK;
-        break;
-    case 'q':
-        pieceType = BLACK | QUEEN;
-        break;
-    case 'k':
-        pieceType = BLACK | KING;
-        break;
-    case 'P':
-        pieceType = WHITE | PAWN;
-        break;
-    case 'N':
-        pieceType = WHITE | KNIGHT;
-        break;
-    case 'B':
-        pieceType = WHITE | BISHOP;
-        break;
-    case 'R':
-        pieceType = WHITE | ROOK;
-        break;
-    case 'Q':
-        pieceType = WHITE | QUEEN;
-        break;
-    case 'K':
-        pieceType = WHITE | KING;
-        break;
-    }
-    return pieceType;
-}
-
-bool Board::CanCastleKingside(int colorToMove, int castleMask)
-{
-    if (colorToMove == WHITE)
-        return castleMask & WHITE_CASTLE_KINGSIDE_MASK;
-    else
-        return castleMask & BLACK_CASTLE_KINGSIDE_MASK;
-}
-
-bool Board::CanCastleQueenside(int colorToMove, int castleMask)
-{
-    if (colorToMove == WHITE)
-        return castleMask & WHITE_CASTLE_QUEENSIDE_MASK;
-    else
-        return castleMask & BLACK_CASTLE_QUEENSIDE_MASK;
-}
-
-void Board::RemoveKingsideCastle(int colorToMove)
-{
-    if (colorToMove == WHITE)
-        castleMask &= ~WHITE_CASTLE_KINGSIDE_MASK;
-    else
-        castleMask &= ~BLACK_CASTLE_KINGSIDE_MASK;
-}
-
-void Board::RemoveQueensideCastle(int colorToMove)
-{
-    if (colorToMove == WHITE)
-        castleMask &= ~WHITE_CASTLE_QUEENSIDE_MASK;
-    else
-        castleMask &= ~BLACK_CASTLE_QUEENSIDE_MASK;
-}
-
-int Board::GetKingSquare(int color)
-{
-    return pieceSquaresOfType[KING | color].front();
+    return pieceSquares.front();
 }

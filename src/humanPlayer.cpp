@@ -12,8 +12,8 @@ int HumanPlayer::GetTileFromMouse(int mouseX, int mouseY)
 void HumanPlayer::PickupPiece(int mouseX, int mouseY)
 {
     heldPieceIndex = GetTileFromMouse(mouseX, mouseY);
-    heldPiece = board.pieces[heldPieceIndex];
-    if (PieceIsColor(board.colorToMove, heldPiece))
+    heldPiece = board.GetPieces()[heldPieceIndex];
+    if (PieceIsColor(board.GetColorToMove(), heldPiece))
         heldPiece = NONE;
 }
 
@@ -25,7 +25,6 @@ void HumanPlayer::DropPiece(int mouseX, int mouseY)
     Move move = MoveGenerator::MovesquaresToMove(board, heldPieceIndex, newSquare, heldPiece);
     if (newSquare != -1 && move.moveValue != 0)
     {
-        board.MakeMove(move);
         chosenMove = move;
         isMoveChosen = true;
     }

@@ -40,10 +40,10 @@
 
 #include "mingw.invoke.h"
 
-#if (defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR))
-#pragma message "The Windows API that MinGW-w32 provides is not fully compatible\
- with Microsoft's API. We'll try to work around this, but we can make no\
- guarantees. This problem does not exist in MinGW-w64."
+// #if (defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR))
+// #pragma message "The Windows API that MinGW-w32 provides is not fully compatible\
+//  with Microsoft's API. We'll try to work around this, but we can make no\
+//  guarantees. This problem does not exist in MinGW-w64."
 #include <windows.h> //  No further granularity can be expected.
 #else
 #include <synchapi.h>          //  For WaitForSingleObject
@@ -57,9 +57,9 @@
 #include <cstdio>
 #endif
 
-#if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0501)
-#error To use the MinGW-std-threads library, you will need to define the macro _WIN32_WINNT to be 0x0501 (Windows XP) or higher.
-#endif
+// #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0501)
+// #error To use the MinGW-std-threads library, you will need to define the macro _WIN32_WINNT to be 0x0501 (Windows XP) or higher.
+// #endif
 
 //  Instead of INVALID_HANDLE_VALUE, _beginthreadex returns 0.
 namespace mingw_stdthread
@@ -346,15 +346,15 @@ namespace std
     {
         using namespace mingw_stdthread::this_thread;
     }
-#elif !defined(MINGW_STDTHREAD_REDUNDANCY_WARNING) //  Skip repetition
-#define MINGW_STDTHREAD_REDUNDANCY_WARNING
-// #pragma message "This version of MinGW seems to include a win32 port of\
+    // #elif !defined(MINGW_STDTHREAD_REDUNDANCY_WARNING) //  Skip repetition
+    // #define MINGW_STDTHREAD_REDUNDANCY_WARNING
+    // #pragma message "This version of MinGW seems to include a win32 port of\
 //  pthreads, and probably already has C++11 std threading classes implemented,\
 //  based on pthreads. These classes, found in namespace std, are not overridden\
 //  by the mingw-std-thread library. If you would still like to use this\
 //  implementation (as it is more lightweight), use the classes provided in\
 //  namespace mingw_stdthread."
-#endif
+    // #endif
 
     //    Specialize hash for this implementation's thread::id, even if the
     //  std::thread::id already has a hash.

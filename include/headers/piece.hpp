@@ -20,3 +20,4 @@ Piece GetPieceType(Piece piece);
 bool PieceIsColor(Piece piece, Color color);
 bool IsMinorPiece(Piece piece);
 bool IsMajorPiece(Piece piece);
+int OppositeColor(int color);

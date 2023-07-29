@@ -18,7 +18,7 @@ public:
     SDL_Renderer *SDLRenderer;
 
     Renderer();
-    void Update(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile);
+    void Update(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int enPassantFile);
     void Destroy();
 
 private:
@@ -28,5 +28,5 @@ private:
     void RenderPieces(Board board, int heldPieceSquare, int heldPiece);
     void RenderDraggedPiece(int heldPiece);
     void RenderBackground();
-    void RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int pawnTwoSquareFile);
+    void RenderLegalMoves(Board board, int heldPiece, int heldPieceSquare, int colorToMove, int enPassantFile);
 };

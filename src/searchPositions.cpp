@@ -1,19 +1,27 @@
 #include "headers/searchPositions.hpp"
+#include <stdlib.h>
 
 float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta, int maximizingPlayer)
 {
     if (depth == 0)
-        return Evaluator::EvaluatePosition(board, board.colorToMove);
+        return Evaluator::EvaluatePosition(board, maximizingPlayer);
 
     std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
-    if (board.colorToMove == maximizingPlayer)
+    if (moves.size() == 0)
+    {
+        if (GetGameEndState(board) == CHECKMATE)
+            return -INFINITY;
+        else
+            return 0;
+    }
+    if (board.GetColorToMove() == maximizingPlayer)
     {
         float maxEval = -INFINITY;
         for (Move move : moves)
         {
-            Board newBoard = board;
-            newBoard.MakeMove(move);
-            float eval = Minimax(newBoard, depth - 1, alpha, beta, maximizingPlayer);
+            board.MakeMove(move);
+            float eval = Minimax(board, depth - 1, alpha, beta, maximizingPlayer);
+            board.UndoMove(move);
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
             if (beta <= alpha)
@@ -26,9 +34,9 @@ float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta
         float minEval = INFINITY;
         for (Move move : moves)
         {
-            Board newBoard = board;
-            newBoard.MakeMove(move);
-            float eval = Minimax(newBoard, depth - 1, alpha, beta, maximizingPlayer);
+            board.MakeMove(move);
+            float eval = Minimax(board, depth - 1, alpha, beta, maximizingPlayer);
+            board.UndoMove(move);
             minEval = std::min(minEval, eval);
             beta = std::min(beta, eval);
             if (beta <= alpha)
@@ -38,16 +46,17 @@ float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta
     }
 }
 
-Move PositionSearcher::GetBestMove(Board &board, int depth, int originalColorToMove)
+Move PositionSearcher::GetBestMove(Board &board, int depth)
 {
     std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
     float maxEval = -INFINITY;
     Move bestMove;
+    int color = board.GetColorToMove();
     for (Move move : moves)
     {
-        Board newBoard = board;
-        newBoard.MakeMove(move);
-        float eval = Minimax(newBoard, depth - 1, -INFINITY, INFINITY, originalColorToMove);
+        board.MakeMove(move);
+        float eval = Minimax(board, depth - 1, -INFINITY, INFINITY, color);
+        board.UndoMove(move);
         if (eval > maxEval)
         {
             maxEval = eval;

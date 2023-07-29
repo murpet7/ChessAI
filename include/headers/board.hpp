@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <stack>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "headers/move.hpp"
@@ -21,42 +22,52 @@
 #define BLACK_CASTLE_KINGSIDE_MASK 0b0100
 #define BLACK_CASTLE_QUEENSIDE_MASK 0b1000
 
+#define EN_PASSANT_FILE_MASK 0b0000011110000
+#define CAPTURED_PIECE_MASK 0b1111100000000
+#define STARTING_GAME_STATE 0b000000001111
+
+#define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+
 class Board
 {
 public:
-    int pieces[64] = {NONE};
-
-    unsigned short castleMask = 0b1111;
-    int pawnTwoSquareFile = -2;
-    int colorToMove = WHITE;
-    std::map<int, SDL_Texture *> pieceTextures;
-    std::map<int, std::vector<int>> pieceSquaresOfType;
     Board();
     Board(std::string FEN);
-    void PiecesFromFEN(std::string FEN);
 
-    // void PickupPiece(int x, int y);
-    // void DropPiece(int x, int y);
-    // int GetHeldPiece();
-    // int GetHeldPieceIndex();
-    // int GetPlayerToMove();
-    // int GetPawnTwoSquareFile();
-    void MakeMove(Move move);
+    void MakeMove(Move &move);
+    void UndoMove(Move &move);
 
-    static bool CanCastleKingside(int colorToMove, int castleMask);
-    static bool CanCastleQueenside(int colorToMove, int castleMask);
-    void RemoveKingsideCastle(int colorToMove);
-    void RemoveQueensideCastle(int colorToMove);
+    void AddPiece(int pieceType, int square);
+    void RemovePiece(int pieceType, int square);
 
-    int GetKingSquare(int color);
+    int *GetPieces();
+    int GetColorToMove();
+    std::vector<int> GetPieceSquares(int piece);
+
+    int GetKingSquare(int kingColor);
+    int GetCapturedPiece();
+    int GetEnPassantFile();
+
+    bool CanCastleKingside();
+    bool CanCastleQueenside();
 
 private:
-    // bool IsOutOfBounds(int x, int y);
-    // void ReturnHeldPiece();
-    void Castle(int oldRookPos, int newRookPos);
-    void CheckCastleRights(int pieceType, int square);
-    void FinishTurn();
+    int colorToMove = WHITE;
+    int pieces[64] = {NONE};
+    std::stack<unsigned short> gameStateHistory;
+
+    std::map<int, SDL_Texture *> pieceTextures;
+    std::map<int, std::vector<int>> pieceSquaresTable;
+
+    void Castle(int to);
+    void UndoCastle(int to);
     void Promote(int promotionType, int square);
-    int PieceTypeFromChar(char c);
-    // int GetTileFromMouse(int mouseX, int mouseY);
+    void MovePiece(int pieceType, int from, int to);
+    void UpdateEnPassantFile(unsigned short &gameState, int file);
+    void UpdateCapturedPiece(unsigned short &gameState, int piece);
+    void ChangeColorToMove();
+
+    void RemoveCastleRights(unsigned short &gameState, int piece, int square);
+    void RemoveKingsideCastle(unsigned short &gameState);
+    void RemoveQueensideCastle(unsigned short &gameState);
 };

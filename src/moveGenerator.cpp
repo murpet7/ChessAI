@@ -3,24 +3,31 @@
 std::vector<Move> MoveGenerator::GenerateAllPseudoLegalMoves(Board &board)
 {
     std::vector<Move> pseudoLegalMoves;
-    int colorToMove = board.colorToMove;
-    for (int square : board.pieceSquaresOfType[PAWN | board.colorToMove])
+    int colorToMove = board.GetColorToMove();
+    for (int square : board.GetPieceSquares(PAWN | colorToMove))
+    {
+        if (GetPieceType(board.GetPieces()[square]) == KNIGHT)
+        {
+            printf("Error: Pawn and Knight on same square\n");
+        }
         GeneratePawnMoves(board, square, pseudoLegalMoves);
+    }
 
-    for (int square : board.pieceSquaresOfType[KNIGHT | colorToMove])
+    for (int square : board.GetPieceSquares(KNIGHT | colorToMove))
         GenerateKnightMoves(board, square, pseudoLegalMoves);
 
-    for (int square : board.pieceSquaresOfType[BISHOP | colorToMove])
+    for (int square : board.GetPieceSquares(BISHOP | colorToMove))
         GenerateBishopMoves(board, square, pseudoLegalMoves);
 
-    for (int square : board.pieceSquaresOfType[ROOK | colorToMove])
+    for (int square : board.GetPieceSquares(ROOK | colorToMove))
         GenerateRookMoves(board, square, pseudoLegalMoves);
 
-    for (int square : board.pieceSquaresOfType[QUEEN | colorToMove])
+    for (int square : board.GetPieceSquares(QUEEN | colorToMove))
         GenerateQueenMoves(board, square, pseudoLegalMoves);
 
-    for (int square : board.pieceSquaresOfType[KING | colorToMove])
+    for (int square : board.GetPieceSquares(KING | colorToMove))
         GenerateKingMoves(board, square, pseudoLegalMoves);
+
     return pseudoLegalMoves;
 }
 
@@ -33,7 +40,7 @@ std::vector<Move> MoveGenerator::GenerateAllLegalMoves(Board &board)
 
 std::vector<Move> MoveGenerator::GenerateMovesForPiece(Board &board, int square, int heldPiece)
 {
-    int colorToMove = board.colorToMove;
+    int colorToMove = board.GetColorToMove();
     std::vector<Move> pseudoLegalMoves;
     switch (heldPiece - colorToMove)
     {
@@ -76,35 +83,35 @@ Move MoveGenerator::MovesquaresToMove(Board &board, int from, int to, int heldPi
 std::vector<Move> MoveGenerator::FilterOnCheck(Board &board, std::vector<Move> pseudoLegalMoves)
 {
     std::vector<Move> legalMoves;
-    int otherPlayer = board.colorToMove == WHITE ? BLACK : WHITE;
-
+    int colorToMove = board.GetColorToMove();
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
-        Board newBoard = board;
-        newBoard.MakeMove(pseudoLegalMove);
-        int kingSquare = newBoard.pieceSquaresOfType[KING | board.colorToMove].front();
-        std::vector<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(newBoard);
+        board.MakeMove(pseudoLegalMove);
+        int kingSquare = board.GetKingSquare(colorToMove);
+        std::vector<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(board);
+        board.UndoMove(pseudoLegalMove);
 
         // Check castle through check
         if (pseudoLegalMove.GetFlag() == CASTLE)
         {
             int passThroughSquare = File(pseudoLegalMove.GetTo()) == 2 ? kingSquare + 1 : kingSquare - 1;
             if (IsSquareAttacked(passThroughSquare, otherPlayerMoves))
+            {
                 continue;
+            }
         }
-
-        // Check king in check
-        if (!IsSquareAttacked(kingSquare, otherPlayerMoves))
+        if (IsSquareAttacked(kingSquare, otherPlayerMoves))
         {
-            legalMoves.push_back(pseudoLegalMove);
+            continue;
         }
+        legalMoves.push_back(pseudoLegalMove);
     }
     return legalMoves;
 }
 
 void MoveGenerator::GeneratePawnMoves(Board &board, int square, std::vector<Move> &pseudoLegalMoves)
 {
-    bool isWhite = board.colorToMove == WHITE;
+    bool isWhite = board.GetColorToMove() == WHITE;
     int direction = isWhite ? -8 : 8;
     int forwardSquare = square + direction;
     int squareRank = Rank(square);
@@ -112,7 +119,7 @@ void MoveGenerator::GeneratePawnMoves(Board &board, int square, std::vector<Move
     int forwardSquareRank = Rank(forwardSquare);
 
     // Forward
-    if (board.pieces[forwardSquare] == NONE)
+    if (board.GetPieces()[forwardSquare] == NONE)
     {
         if (forwardSquareRank == 0 || forwardSquareRank == 7)
         {
@@ -125,7 +132,7 @@ void MoveGenerator::GeneratePawnMoves(Board &board, int square, std::vector<Move
         if ((isWhite && squareRank == 6) || (!isWhite && squareRank == 1))
         {
             int doubleForwardSquare = forwardSquare + direction;
-            if (board.pieces[doubleForwardSquare] == NONE)
+            if (board.GetPieces()[doubleForwardSquare] == NONE)
             {
                 pseudoLegalMoves.push_back(Move(square, doubleForwardSquare, PAWN_TWO_SQUARES));
             }
@@ -163,11 +170,11 @@ void MoveGenerator::GeneratePawnMoves(Board &board, int square, std::vector<Move
     // En passant
     if ((isWhite && squareRank == 3) || (!isWhite && squareRank == 4))
     {
-        if (board.pawnTwoSquareFile == squareFile - 1)
+        if (board.GetEnPassantFile() == squareFile - 1)
         {
             pseudoLegalMoves.push_back(Move(square, leftCaptureSquare, EN_PASSANT));
         }
-        if (board.pawnTwoSquareFile == squareFile + 1)
+        if (board.GetEnPassantFile() == squareFile + 1)
         {
             pseudoLegalMoves.push_back(Move(square, rightCaptureSquare, EN_PASSANT));
         }
@@ -223,14 +230,14 @@ void MoveGenerator::GenerateKingMoves(Board &board, int square, std::vector<Move
     }
 
     // Castling
-    if (Board::CanCastleKingside(board.colorToMove, board.castleMask))
+    if (board.CanCastleKingside())
     {
         if (IsEmptySquare(board, square + 1) && IsEmptySquare(board, square + 2))
         {
             pseudoLegalMoves.push_back(Move(square, square + 2, CASTLE));
         }
     }
-    if (Board::CanCastleQueenside(board.colorToMove, board.castleMask))
+    if (board.CanCastleQueenside())
     {
         if (IsEmptySquare(board, square - 1) && IsEmptySquare(board, square - 2) && IsEmptySquare(board, square - 3))
         {
@@ -275,17 +282,17 @@ bool MoveGenerator::IsKingOutOfBounds(int oldSquare, int newSquare)
 
 bool MoveGenerator::IsCapturableSquare(Board &board, int square)
 {
-    return board.pieces[square] != NONE && PieceIsColor(board.pieces[square], board.colorToMove);
+    return board.GetPieces()[square] != NONE && PieceIsColor(board.GetPieces()[square], board.GetColorToMove());
 }
 
 bool MoveGenerator::IsEmptySquare(Board &board, int square)
 {
-    return board.pieces[square] == NONE;
+    return board.GetPieces()[square] == NONE;
 }
 
 bool MoveGenerator::IsEmptySquareOrCapturable(Board &board, int square)
 {
-    return board.pieces[square] == NONE || PieceIsColor(board.pieces[square], board.colorToMove);
+    return board.GetPieces()[square] == NONE || PieceIsColor(board.GetPieces()[square], board.GetColorToMove());
 }
 
 int MoveGenerator::NumSquaresToEdge(int square, int direction)

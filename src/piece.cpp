@@ -37,3 +37,10 @@ bool IsMajorPiece(Piece piece)
         return true;
     return false;
 }
+
+int OppositeColor(int color)
+{
+    if (color == WHITE)
+        return BLACK;
+    return WHITE;
+}

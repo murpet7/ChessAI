@@ -25,7 +25,12 @@ int GetGameEndState(Board &board)
 int GetCheckmateOrStalemate(Board &board)
 {
     std::vector<Move> opponentMoves = MoveGenerator::GenerateAllPseudoLegalMoves(board);
-    int kingSquare = board.GetKingSquare(board.colorToMove);
+    int kingSquare = board.GetKingSquare(board.GetColorToMove());
+    if (kingSquare == -1)
+    {
+        printf("Error: No king found\n");
+        return DRAW; // TODO: Check if this is correct
+    }
 
     for (int y = -1; y <= 1; y++)
     {
@@ -61,31 +66,31 @@ bool IsFiftyMoveRule(Board &board)
 
 bool IsInsufficientMaterial(Board &board)
 {
-    if (board.pieceSquaresOfType[PAWN | WHITE].size() > 0 || board.pieceSquaresOfType[PAWN | BLACK].size() > 0)
+    if (board.GetPieceSquares(PAWN | WHITE).size() > 0 || board.GetPieceSquares(PAWN | BLACK).size() > 0)
     {
         return false;
     }
-    if (board.pieceSquaresOfType[ROOK | WHITE].size() > 0 || board.pieceSquaresOfType[ROOK | BLACK].size() > 0)
+    if (board.GetPieceSquares(ROOK | WHITE).size() > 0 || board.GetPieceSquares(ROOK | BLACK).size() > 0)
     {
         return false;
     }
-    if (board.pieceSquaresOfType[QUEEN | WHITE].size() > 0 || board.pieceSquaresOfType[QUEEN | BLACK].size() > 0)
+    if (board.GetPieceSquares(QUEEN | WHITE).size() > 0 || board.GetPieceSquares(QUEEN | BLACK).size() > 0)
     {
         return false;
     }
-    if (board.pieceSquaresOfType[BISHOP | WHITE].size() > 1 || board.pieceSquaresOfType[BISHOP | BLACK].size() > 1)
+    if (board.GetPieceSquares(BISHOP | WHITE).size() > 1 || board.GetPieceSquares(BISHOP | BLACK).size() > 1)
     {
         return false;
     }
-    if (board.pieceSquaresOfType[BISHOP | WHITE].size() > 0 && board.pieceSquaresOfType[KNIGHT | WHITE].size() > 0)
+    if (board.GetPieceSquares(BISHOP | WHITE).size() > 0 && board.GetPieceSquares(KNIGHT | WHITE).size() > 0)
     {
         return false;
     }
-    if (board.pieceSquaresOfType[BISHOP | BLACK].size() > 0 && board.pieceSquaresOfType[KNIGHT | BLACK].size() > 0)
+    if (board.GetPieceSquares(BISHOP | BLACK).size() > 0 && board.GetPieceSquares(KNIGHT | BLACK).size() > 0)
     {
         return false;
     }
-    if (board.pieceSquaresOfType[KNIGHT | WHITE].size() > 2 || board.pieceSquaresOfType[KNIGHT | BLACK].size() > 2)
+    if (board.GetPieceSquares(KNIGHT | WHITE).size() > 2 || board.GetPieceSquares(KNIGHT | BLACK).size() > 2)
     {
         return false;
     }

@@ -20,27 +20,26 @@ float Evaluator::EvaluatePosition(Board &board, int maximizingPlayer)
 float Evaluator::EvaluateMaterial(Board &board, int maximizingPlayer)
 {
     int opponent = maximizingPlayer == WHITE ? BLACK : WHITE;
-    int numGoodPawns = board.pieceSquaresOfType[PAWN | maximizingPlayer].size();
-    int numBadPawns = board.pieceSquaresOfType[PAWN | opponent].size();
-    int numGoodKnights = board.pieceSquaresOfType[KNIGHT | maximizingPlayer].size();
-    int numBadKnights = board.pieceSquaresOfType[KNIGHT | opponent].size();
-    int numGoodBishops = board.pieceSquaresOfType[BISHOP | maximizingPlayer].size();
-    int numBadBishops = board.pieceSquaresOfType[BISHOP | opponent].size();
-    int numGoodRooks = board.pieceSquaresOfType[ROOK | maximizingPlayer].size();
-    int numBadRooks = board.pieceSquaresOfType[ROOK | opponent].size();
-    int numGoodQueens = board.pieceSquaresOfType[QUEEN | maximizingPlayer].size();
-    int numBadQueens = board.pieceSquaresOfType[QUEEN | opponent].size();
+    int numGoodPawns = board.GetPieceSquares(PAWN | maximizingPlayer).size();
+    int numGoodKnights = board.GetPieceSquares(KNIGHT | maximizingPlayer).size();
+    int numGoodBishops = board.GetPieceSquares(BISHOP | maximizingPlayer).size();
+    int numGoodRooks = board.GetPieceSquares(ROOK | maximizingPlayer).size();
+    int numGoodQueens = board.GetPieceSquares(QUEEN | maximizingPlayer).size();
+    int numBadPawns = board.GetPieceSquares(PAWN | opponent).size();
+    int numBadKnights = board.GetPieceSquares(KNIGHT | opponent).size();
+    int numBadBishops = board.GetPieceSquares(BISHOP | opponent).size();
+    int numBadRooks = board.GetPieceSquares(ROOK | opponent).size();
+    int numBadQueens = board.GetPieceSquares(QUEEN | opponent).size();
 
-    return -((PAWN_VALUE * (numGoodPawns - numBadPawns)) +
-             (KNIGHT_VALUE * (numGoodKnights - numBadKnights)) +
-             (BISHOP_VALUE * (numGoodBishops - numBadBishops)) +
-             (ROOK_VALUE * (numGoodRooks - numBadRooks)) +
-             (QUEEN_VALUE * (numGoodQueens - numBadQueens)));
+    return ((PAWN_VALUE * (numGoodPawns - numBadPawns)) +
+            (KNIGHT_VALUE * (numGoodKnights - numBadKnights)) +
+            (BISHOP_VALUE * (numGoodBishops - numBadBishops)) +
+            (ROOK_VALUE * (numGoodRooks - numBadRooks)) +
+            (QUEEN_VALUE * (numGoodQueens - numBadQueens)));
 }
 
 float Evaluator::EvaluatePositional(Board &board, int maximizingPlayer)
 {
-    // test ook het meegeven van de table ipv map
     int opponent = maximizingPlayer == WHITE ? BLACK : WHITE;
     float positionalScore = 0;
     positionalScore += EvaluatePositionalForPiece(board, PAWN, maximizingPlayer);
@@ -49,7 +48,7 @@ float Evaluator::EvaluatePositional(Board &board, int maximizingPlayer)
     positionalScore += EvaluatePositionalForPiece(board, ROOK, maximizingPlayer);
     positionalScore += EvaluatePositionalForPiece(board, QUEEN, maximizingPlayer);
     positionalScore += EvaluatePositionalForPiece(board, KING, maximizingPlayer);
-    return -positionalScore;
+    return positionalScore;
 }
 
 float Evaluator::EvaluatePositionalForPiece(Board &board, int pieceType, int maximizingPlayer)
@@ -58,11 +57,11 @@ float Evaluator::EvaluatePositionalForPiece(Board &board, int pieceType, int max
     int multiplier = maximizingPlayer == WHITE ? 1 : -1;
 
     std::array<int, 64> piecePositionTable = Evaluator::piecePositionTables.at(pieceType);
-    for (int piece : board.pieceSquaresOfType[pieceType | WHITE])
+    for (int piece : board.GetPieceSquares(pieceType | WHITE))
     {
         positionalScore += piecePositionTable[piece];
     }
-    for (int piece : board.pieceSquaresOfType[pieceType | BLACK])
+    for (int piece : board.GetPieceSquares(pieceType | BLACK))
     {
         positionalScore -= piecePositionTable[63 - piece];
     }

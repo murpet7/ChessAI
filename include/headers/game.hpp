@@ -22,7 +22,7 @@ private:
     Renderer renderer;
 
     HumanPlayer whitePlayer;
-    HumanPlayer blackPlayer;
+    ComputerPlayer blackPlayer;
     Player *playerToMove;
     void SwitchTurn(Move move);
 };

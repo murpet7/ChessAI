@@ -10,6 +10,7 @@ Move Player::GetChosenMove()
 {
     if (isMoveChosen)
     {
+        board.MakeMove(chosenMove);
         isMoveChosen = false;
         heldPiece = NONE;
         return chosenMove;
