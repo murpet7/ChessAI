@@ -6,8 +6,9 @@ float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta
     if (depth == 0)
         return Evaluator::EvaluatePosition(board, maximizingPlayer);
 
-    std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
-    if (moves.size() == 0)
+    std::vector<Move> legalMoves;
+    MoveGenerator::GenerateAllLegalMoves(board, legalMoves);
+    if ((legalMoves).size() == 0)
     {
         if (GetGameEndState(board) == CHECKMATE)
             return -INFINITY;
@@ -17,7 +18,7 @@ float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta
     if (board.GetColorToMove() == maximizingPlayer)
     {
         float maxEval = -INFINITY;
-        for (Move move : moves)
+        for (Move move : legalMoves)
         {
             board.MakeMove(move);
             float eval = Minimax(board, depth - 1, alpha, beta, maximizingPlayer);
@@ -32,7 +33,7 @@ float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta
     else
     {
         float minEval = INFINITY;
-        for (Move move : moves)
+        for (Move move : legalMoves)
         {
             board.MakeMove(move);
             float eval = Minimax(board, depth - 1, alpha, beta, maximizingPlayer);
@@ -48,11 +49,12 @@ float PositionSearcher::Minimax(Board &board, int depth, float alpha, float beta
 
 Move PositionSearcher::GetBestMove(Board &board, int depth)
 {
-    std::vector<Move> moves = MoveGenerator::GenerateAllLegalMoves(board);
+    std::vector<Move> legalMoves;
+    MoveGenerator::GenerateAllLegalMoves(board, legalMoves);
     float maxEval = -INFINITY;
     Move bestMove;
     int color = board.GetColorToMove();
-    for (Move move : moves)
+    for (Move move : legalMoves)
     {
         board.MakeMove(move);
         float eval = Minimax(board, depth - 1, -INFINITY, INFINITY, color);

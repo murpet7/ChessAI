@@ -19,9 +19,9 @@
 class MoveGenerator
 {
 public:
-    static std::vector<Move> GenerateAllLegalMoves(Board &board);
-    static std::vector<Move> GenerateAllPseudoLegalMoves(Board &board);
-    static std::vector<Move> GenerateMovesForPiece(Board &board, int square, int heldPiece);
+    static void GenerateAllLegalMoves(Board &board, std::vector<Move> &legalMoves);
+    static void GenerateAllPseudoLegalMoves(Board &board, std::vector<Move> &pseudoLegalMoves);
+    static void GenerateLegalMovesForPiece(Board &board, int square, int heldPiece, std::vector<Move> &legalMoves);
     static Move MovesquaresToMove(Board &board, int from, int to, int heldPiece);
 
     static bool IsSquareAttacked(int square, std::vector<Move> moves);
@@ -44,5 +44,5 @@ private:
     static int NumSquaresToEdge(int square, int direction);
 
     static void GenerateSlidingMoves(Board &board, int square, std::vector<int> directions, std::vector<Move> &pseudoLegalMoves);
-    static std::vector<Move> FilterOnCheck(Board &board, std::vector<Move> pseudoLegalMoves);
+    static void FilterOnCheck(Board &board, std::vector<Move> &pseudoLegalMoves, std::vector<Move> &legalMoves);
 };

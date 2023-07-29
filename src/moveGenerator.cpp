@@ -1,8 +1,7 @@
 #include "headers/moveGenerator.hpp"
 
-std::vector<Move> MoveGenerator::GenerateAllPseudoLegalMoves(Board &board)
+void MoveGenerator::GenerateAllPseudoLegalMoves(Board &board, std::vector<Move> &pseudoLegalMoves)
 {
-    std::vector<Move> pseudoLegalMoves;
     int colorToMove = board.GetColorToMove();
     for (int square : board.GetPieceSquares(PAWN | colorToMove))
     {
@@ -27,18 +26,16 @@ std::vector<Move> MoveGenerator::GenerateAllPseudoLegalMoves(Board &board)
 
     for (int square : board.GetPieceSquares(KING | colorToMove))
         GenerateKingMoves(board, square, pseudoLegalMoves);
-
-    return pseudoLegalMoves;
 }
 
-std::vector<Move> MoveGenerator::GenerateAllLegalMoves(Board &board)
+void MoveGenerator::GenerateAllLegalMoves(Board &board, std::vector<Move> &legalMoves)
 {
-    std::vector<Move> pseudoLegalMoves = GenerateAllPseudoLegalMoves(board);
-    std::vector<Move> legalMoves = FilterOnCheck(board, pseudoLegalMoves);
-    return legalMoves;
+    std::vector<Move> pseudoLegalMoves;
+    GenerateAllPseudoLegalMoves(board, pseudoLegalMoves);
+    FilterOnCheck(board, pseudoLegalMoves, legalMoves);
 }
 
-std::vector<Move> MoveGenerator::GenerateMovesForPiece(Board &board, int square, int heldPiece)
+void MoveGenerator::GenerateLegalMovesForPiece(Board &board, int square, int heldPiece, std::vector<Move> &legalMoves)
 {
     int colorToMove = board.GetColorToMove();
     std::vector<Move> pseudoLegalMoves;
@@ -65,30 +62,30 @@ std::vector<Move> MoveGenerator::GenerateMovesForPiece(Board &board, int square,
     default:
         break;
     }
-    std::vector<Move> legalMoves = FilterOnCheck(board, pseudoLegalMoves);
-    return legalMoves;
+    FilterOnCheck(board, pseudoLegalMoves, legalMoves);
 }
 
 Move MoveGenerator::MovesquaresToMove(Board &board, int from, int to, int heldPiece)
 {
-    std::vector<Move> pseudoLegalMoves = GenerateMovesForPiece(board, from, heldPiece);
-    for (Move pseudoLegalMove : pseudoLegalMoves)
+    std::vector<Move> legalMoves;
+    GenerateLegalMovesForPiece(board, from, heldPiece, legalMoves);
+    for (Move legalMove : legalMoves)
     {
-        if (pseudoLegalMove.GetTo() == to)
-            return pseudoLegalMove;
+        if (legalMove.GetTo() == to)
+            return legalMove;
     }
     return Move();
 }
 
-std::vector<Move> MoveGenerator::FilterOnCheck(Board &board, std::vector<Move> pseudoLegalMoves)
+void MoveGenerator::FilterOnCheck(Board &board, std::vector<Move> &pseudoLegalMoves, std::vector<Move> &legalMoves)
 {
-    std::vector<Move> legalMoves;
     int colorToMove = board.GetColorToMove();
     for (Move pseudoLegalMove : pseudoLegalMoves)
     {
         board.MakeMove(pseudoLegalMove);
         int kingSquare = board.GetKingSquare(colorToMove);
-        std::vector<Move> otherPlayerMoves = GenerateAllPseudoLegalMoves(board);
+        std::vector<Move> otherPlayerMoves;
+        GenerateAllPseudoLegalMoves(board, otherPlayerMoves);
         board.UndoMove(pseudoLegalMove);
 
         // Check castle through check
@@ -106,7 +103,6 @@ std::vector<Move> MoveGenerator::FilterOnCheck(Board &board, std::vector<Move> p
         }
         legalMoves.push_back(pseudoLegalMove);
     }
-    return legalMoves;
 }
 
 void MoveGenerator::GeneratePawnMoves(Board &board, int square, std::vector<Move> &pseudoLegalMoves)

@@ -24,7 +24,8 @@ int GetGameEndState(Board &board)
 
 int GetCheckmateOrStalemate(Board &board)
 {
-    std::vector<Move> opponentMoves = MoveGenerator::GenerateAllPseudoLegalMoves(board);
+    std::vector<Move> opponentMoves;
+    MoveGenerator::GenerateAllPseudoLegalMoves(board, opponentMoves);
     int kingSquare = board.GetKingSquare(board.GetColorToMove());
     if (kingSquare == -1)
     {
